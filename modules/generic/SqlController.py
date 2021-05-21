@@ -1,4 +1,4 @@
-
+import sqlite3
 
 class SqlController:
 
@@ -11,7 +11,7 @@ class SqlController:
         try:
             self.conn = sqlite3.connect(db_file)
             # print(sqlite3.version)
-        except Error as e:
+        except sqlite3.Error as e:
             print(e)
 
     
