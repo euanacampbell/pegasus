@@ -1,15 +1,12 @@
 # test_capitalize.py
 
-from modules.JsonFormat import JsonFormat
+from modules.jsonformat import jsonformat
 
-instance=JsonFormat('config')
+instance=jsonformat()
 
 
 def test_mappings():
-    
-    # config loads a value
-    if config.map['command'] != 'command':
-        raise Exception(f"config not loaded properly.")
+    pass
 
 
 
