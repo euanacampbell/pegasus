@@ -46,7 +46,7 @@ class SqlController:
             c.execute(query)
             self.conn.commit()
             return(c)
-        except Error as e:
+        except sqlite3.Error as e:
             print(e)
     
     def drop_table(self, table_name):
