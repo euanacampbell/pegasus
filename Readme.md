@@ -12,14 +12,14 @@ pip3 install -r requirements.txt
 
 ## Usage
 
+Run the main.py file, this will load up the prompt.
+
 ```bash
 python3 main.py
-```
 
-This will load up the prompt.
-```bash
 command: 
 ```
+
 ## Default Commands
 
 - help (loads list of all available commands
@@ -34,7 +34,7 @@ Save this into the modules folder and import this at the top of the `main.py` fi
 
 ```python
 class command_name:
-    """Format a JSON object"""
+    """command description"""
 
     def __init__(self, config=None):
         self.config=config
