@@ -3,13 +3,14 @@ try:
 except:
     from generic.clipboard import Clipboard
 
+
 class listformat:
     """Convert an Excel list to a comma separated list for SQL"""
 
     def __init__(self, config=None):
-        self.config=config
+        self.config = config
 
-    def run(self, param=None):
+    def run(self, param1=None, param2=None):
         current = Clipboard.get_clipboard()
 
         to_list = current.splitlines()
@@ -17,7 +18,7 @@ class listformat:
 
         for row in to_list:
             formatted += f"'{row}',\n"
-        
+
         formatted = formatted[:-2]
         formatted = f"({formatted})"
 
@@ -26,6 +27,6 @@ class listformat:
 
 
 if __name__ == '__main__':
-    tc=listformat()
+    tc = listformat()
 
-    print( tc.__doc__ )
+    print(tc.__doc__)

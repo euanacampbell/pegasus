@@ -1,132 +1,105 @@
-import sqlite3
-from sqlite3 import Error
+import pymysql
+import yaml
 from tabulate import tabulate
 
-try:
-    from modules.generic.clipboard import Clipboard
-except:
-    from generic.clipboard import Clipboard
-
-try:
-    from modules.generic.SqlController import SqlController
-except:
-    from generic.SqlController import SqlController
 
 class sql:
-    """Generic class for handling various SQL tasks"""
+    """Run a predetermined SQL command"""
 
-    def __init__(self, config=None):
-        self.config=config
+    def __init__(self):
 
-        self.sql = SqlController()
+        with open('sql.yaml', 'r') as stream:
+            try:
+                config = yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                raise Exception(exc)
 
-    def __run__(self, command):
-        self.create_connection("C:/Users/euan.campbell/projects/pegasus/assets/SQL/main.db")
-        
-        commands = ['load_clipboard', 'select', 'exit', 'print_table']
+        self.connections = config['connections']
+        self.commands = config['sql_commands']
 
-        if command not in commands:
-            print('command not recognised')
-        
-        elif command == 'load_clipboard':
+    def __run__(self, params=None):
 
-            table_name = input('\ntable name: ')
-            
-            if table_name=='exit':
-                return()
+        # check a sql command has been passed
+        try:
+            sql_command = params[0]
+        except IndexError:
+            print("missing sql command, type 'sql help' for options")
+            return()
 
-            self.clipboard_to_db(table_name)
+        if sql_command == 'help':
+            for command in self.commands:
+                desc = self.commands[command]['description']
+                print(f"{command} : {desc}")
+            return()
 
-            print(f'successfully created {table_name}')
-        elif command == 'print_table':
-            table = input('table name: ')
-            self.select(f"SELECT * FROM {table};", print_results=True)
-        elif command == 'select':
-            query = input('query: ')
-            self.select(query, print_results=True)
+        # query details for query and connection details for where to run it
+        query_details = self.commands[sql_command]
+        conn_details = self.connections[query_details['connection']]
 
-    
+        # check parameter passed if required
+        try:
+            sql_param = params[1]
+        except IndexError:
+            sql_param = None
 
-    def insert_list(self, table, input_list):
-        
-        if not isinstance(input_list[0], list):
-            list_of_lists=[input_list]
-        else:
-            list_of_lists=input_list
-        
-        for row in list_of_lists:
-            query = f""" INSERT INTO {table} VALUES("""
+        if query_details['parameter'] == True and sql_param == None:
+            raise Exception('missing query parameter')
 
-            # get new id and add to row
-            new_id = int(self.select(f'SELECT MAX({table}_id) FROM {table}')[0][0] or 0)+1
-            row.insert(0,new_id)
-            
-            # add each column to VALUES
-            for column in row:
-                query += f"'{column}',"
-            
-            query = query[:-1] + ')' # remove final comma and add closing bracket
+        for query in query_details['queries']:
+            if query_details['parameter'] == True:
+                query = query.replace("&p", sql_param)
 
-            self.run_query(query)
+            sql_i = SQL_Conn()
+            results = sql_i.run_query(conn_details, query)
 
-        return()
+            formatted = ', '.join(results['tables'])
 
-    def select(self, query, print_results=False):
-
-        cur = self.run_query(query)
-        rows = cur.fetchall()
-
-        column_names = [d[0] for d in cur.description]
-
-        if print_results:
-            self.print_results(rows, column_names)
-
-        return(rows)
+            print(f'\ntables: {formatted}')
+            print(tabulate(results['results'],
+                           headers=results['columns'],
+                           tablefmt="pretty"))
 
 
-    
-    def csv_to_db(self, path_to_file, has_header=False):
-        pass
+class SQL_Conn:
 
-    def clipboard_to_db(self, table_name):
+    def get_connection(self, conn):
+        if conn['type'] == 'mysql':
+            self.connection = pymysql.connect(host=conn['server'],
+                                              user=conn['user'],
+                                              password=conn['password'],
+                                              database=conn['database'],
+                                              cursorclass=pymysql.cursors.DictCursor)
+        elif type == 'sqlserver':
+            pass
 
-        clipboard = Clipboard.get_clipboard().splitlines()
-        if '\t' in clipboard[0]:
-            master = [row.split('\t') for row in clipboard]
-        if '\n' in clipboard[0]:
-            master = [row.split('\n') for row in clipboard]
+    def run_query(self, conn, query):
 
-        columns=master[0]
-        data=master[1:]
+        results = {}
 
-        self.create_table(table_name, column_names=columns)
+        self.get_connection(conn)
 
-        self.insert_list(table_name, data)
-        
-        self.close_connection()
+        with self.connection:
+            with self.connection.cursor() as cursor:
+                cursor.execute(query)
 
-    def print_results(self, results, columns):
-        
-        print(tabulate(results, headers=columns, tablefmt="pretty"))
+                content = cursor.fetchall()
+                results['results'] = [i.values() for i in content]
 
-if __name__ == '__main__':
+                results['columns'] = [i[0] for i in cursor.description]
 
-    db = sql()
+                results['tables'] = self.tables_used(query)
 
-    # db.drop_table('test')
+            self.connection.commit()
 
-    # db.create_table('test', column_names=['name', 'email', 'phone'])
+        return results
 
-    # db.insert_list('test', ['euan campbell', 'hello@euan.app', '07977055775'])
-    db.select("SELECT * FROM historic_a LIMIT 5;", print_results=True)
+    def tables_used(self, query):
 
-    db.close_connection()
+        query_list = query.split(' ')
 
+        tables = []
 
-"""
-Tools:
-- db from clipboard
-- db from csv file
-- db from SQL server
-- query db
-"""
+        for index, word in enumerate(query_list):
+            if word in ('FROM', 'JOIN') and query_list[index+1] not in tables:
+                tables.append(query_list[index+1].lower())
+        return(tables)

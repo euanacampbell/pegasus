@@ -1,13 +1,14 @@
 import json
 from modules.generic.clipboard import Clipboard
 
+
 class jsonformat:
     """Format a JSON object"""
 
     def __init__(self, config=None):
-        self.config=config
+        self.config = config
 
-    def __run__(self, param=None):
+    def __run__(self, param1=None, param2=None):
         current = Clipboard.get_clipboard()
 
         try:
