@@ -45,6 +45,8 @@ while True:
         sys.exit()
     elif command == 'reload':
         continue
+    elif command == 'clear':
+        print('\x1b[2J')
     else:
         try:
             module = globals()[command]()

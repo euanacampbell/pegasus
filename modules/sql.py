@@ -1,5 +1,6 @@
 import pymysql
 import yaml
+import pyodbc
 from tabulate import tabulate
 
 
@@ -63,14 +64,19 @@ class sql:
 class SQL_Conn:
 
     def get_connection(self, conn):
-        if conn['type'] == 'mysql':
+        self.type=conn['type']
+        if self.type == 'mysql':
             self.connection = pymysql.connect(host=conn['server'],
                                               user=conn['user'],
                                               password=conn['password'],
                                               database=conn['database'],
                                               cursorclass=pymysql.cursors.DictCursor)
-        elif type == 'sqlserver':
-            pass
+        elif self.type == 'sqlserver':
+            server = conn['server']
+            database = conn['database']
+            self.connection = pyodbc.connect(f'DRIVER=SQL Server; SERVER={server}; DATABASE={database};Trusted_Connection=yes;')
+        else:
+            raise Exception(f"type {self.type} not recognised")
 
     def run_query(self, conn, query):
 
@@ -79,15 +85,17 @@ class SQL_Conn:
         self.get_connection(conn)
 
         with self.connection:
-            with self.connection.cursor() as cursor:
+            with self.connection.cursor() as cursor:              
                 cursor.execute(query)
 
                 content = cursor.fetchall()
-                results['results'] = [i.values() for i in content]
+                if self.type == 'mysql':
+                    results['results'] = [i.values() for i in content]
+                elif self.type == 'sqlserver':
+                    results['results'] = [i for i in content]
 
                 results['columns'] = [i[0] for i in cursor.description]
-
-                results['tables'] = self.tables_used(query)
+                results['tables'] = self.tables_used(query) 
 
             self.connection.commit()
 
