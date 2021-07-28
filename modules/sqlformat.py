@@ -5,10 +5,10 @@ from modules.generic.clipboard import Clipboard
 class sqlformat:
     """Format a SQL query"""
 
-    def __init__(self, config=None):
-        self.config = config
+    def __init__(self):
+        pass
 
-    def __run__(self, param=None):
+    def __run__(self, params=None):
         # SELECT * FROM Users
         current = Clipboard.get_clipboard()
 

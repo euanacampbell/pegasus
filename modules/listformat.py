@@ -7,10 +7,10 @@ except:
 class listformat:
     """Convert an Excel list to a comma separated list for SQL"""
 
-    def __init__(self, config=None):
-        self.config = config
+    def __init__(self):
+        pass
 
-    def __run__(self, param1=None, param2=None):
+    def __run__(self, params=None):
         current = Clipboard.get_clipboard()
 
         to_list = current.splitlines()

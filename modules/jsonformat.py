@@ -5,10 +5,10 @@ from modules.generic.clipboard import Clipboard
 class jsonformat:
     """Format a JSON object"""
 
-    def __init__(self, config=None):
-        self.config = config
+    def __init__(self):
+        pass
 
-    def __run__(self, param1=None, param2=None):
+    def __run__(self, params=None):
         current = Clipboard.get_clipboard()
 
         try:
