@@ -10,7 +10,7 @@ class lockscreen:
         pass
 
     def __run__(self, params=["default"]):
-        if param == []:
+        if params == []:
             param = ["default"]
         temp_location = "C:\Temp"
         master_location = "C:\Temp\wallpaper_backup\master"
