@@ -64,7 +64,10 @@ class sql:
 class SQL_Conn:
 
     def get_connection(self, conn):
-        self.type=conn['type']
+        self.type = conn['type']
+
+        server = conn['server']
+        database = conn['database']
         if self.type == 'mysql':
             self.connection = pymysql.connect(host=conn['server'],
                                               user=conn['user'],
@@ -72,9 +75,13 @@ class SQL_Conn:
                                               database=conn['database'],
                                               cursorclass=pymysql.cursors.DictCursor)
         elif self.type == 'sqlserver':
-            server = conn['server']
-            database = conn['database']
-            self.connection = pyodbc.connect(f'DRIVER=SQL Server; SERVER={server}; DATABASE={database};Trusted_Connection=yes;')
+            self.connection = pyodbc.connect(
+                f'DRIVER=SQL Server; SERVER={server}; DATABASE={database};Trusted_Connection=yes;')
+        elif self.type == 'azure':
+            username = conn['username']
+            password = conn['password']
+            self.connection = pyodbc.connect(
+                f'DRIVER=SQL Server; SERVER={server}; DATABASE={database}; UID={username}; PWD={password}')
         else:
             raise Exception(f"type {self.type} not recognised")
 
@@ -85,17 +92,17 @@ class SQL_Conn:
         self.get_connection(conn)
 
         with self.connection:
-            with self.connection.cursor() as cursor:              
+            with self.connection.cursor() as cursor:
                 cursor.execute(query)
 
                 content = cursor.fetchall()
                 if self.type == 'mysql':
                     results['results'] = [i.values() for i in content]
-                elif self.type == 'sqlserver':
+                else:
                     results['results'] = [i for i in content]
 
                 results['columns'] = [i[0] for i in cursor.description]
-                results['tables'] = self.tables_used(query) 
+                results['tables'] = self.tables_used(query)
 
             self.connection.commit()
 
@@ -103,11 +110,21 @@ class SQL_Conn:
 
     def tables_used(self, query):
 
-        query_list = query.split(' ')
+        query_list = [word for word in query.split(' ') if word]
 
         tables = []
 
         for index, word in enumerate(query_list):
-            if word in ('FROM', 'JOIN') and query_list[index+1] not in tables:
-                tables.append(query_list[index+1].lower())
-        return(tables)
+
+            if word in ('FROM', 'JOIN', 'from', 'join') and query_list[index+1] not in tables:
+
+                table = query_list[index+1].lower()
+                formatted_table = table.split('.')[-1]
+
+                remove_characters = ['(', ')', '[', ']']
+
+                for char in remove_characters:
+                    formatted_table = formatted_table.replace(char, "")
+
+                tables.append(formatted_table)
+        return(set(tables))

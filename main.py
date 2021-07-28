@@ -1,16 +1,14 @@
-from configs.config import Config
-
 from modules.jsonformat import jsonformat
 from modules.sqlformat import sqlformat
 from modules.f import f
 from modules.listformat import listformat
 from modules.sql import sql
+from modules.lockscreen import lockscreen
 
 import os
 import sys
 from os import listdir
 from os.path import isfile, join
-from importlib import reload
 import traceback
 
 while True:
@@ -22,9 +20,6 @@ while True:
         param = text_input.split(' ')[1:]
     except:
         param = None
-
-    # load everything
-    config = Config()
 
     if command == 'help':
         current_path = os.path.dirname(os.path.abspath(__file__)) + '/modules'

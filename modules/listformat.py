@@ -10,7 +10,7 @@ class listformat:
     def __init__(self, config=None):
         self.config = config
 
-    def run(self, param1=None, param2=None):
+    def __run__(self, param1=None, param2=None):
         current = Clipboard.get_clipboard()
 
         to_list = current.splitlines()

@@ -1,0 +1,30 @@
+connections:
+  a_sql_server:
+    type: sqlserver
+    server: server_name
+    database: db_name
+  an_azure_server:
+    type: azure
+    server: server_name
+    database: db_name
+    username: username
+    password: password
+
+
+sql_commands:
+  command_name:
+    description: get most recent log records
+    parameter: false
+    connection: a_sql_server
+    queries:
+      - "SELECT TOP (20) *
+        FROM random_log
+        ORDER BY datetime DESC"
+  command_name:
+    description: search for specific thing in audit
+    parameter: true
+    connection: an_azure_server
+    queries:
+      - "SELECT TOP (1000) *
+        FROM audits
+        WHERE request='&p'"
