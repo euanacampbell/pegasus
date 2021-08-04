@@ -39,7 +39,7 @@ class sql:
 
         # check parameter passed if required
         try:
-            sql_param = params[1]
+            sql_param = ' '.join(params[1:])
         except IndexError:
             sql_param = None
 
@@ -47,11 +47,9 @@ class sql:
             raise Exception('missing query parameter')
 
         for query in query_details['queries']:
-            if query_details['parameter'] == True:
-                query = query.replace("&p", sql_param)
 
             sql_i = SQL_Conn()
-            results = sql_i.run_query(conn_details, query)
+            results = sql_i.run_query(conn_details, query, sql_param)
 
             formatted = ', '.join(results['tables'])
 
@@ -70,7 +68,7 @@ class SQL_Conn:
         database = conn['database']
         if self.type == 'mysql':
             self.connection = pymysql.connect(host=conn['server'],
-                                              user=conn['user'],
+                                              user=conn['username'],
                                               password=conn['password'],
                                               database=conn['database'],
                                               cursorclass=pymysql.cursors.DictCursor)
@@ -85,7 +83,7 @@ class SQL_Conn:
         else:
             raise Exception(f"type {self.type} not recognised")
 
-    def run_query(self, conn, query):
+    def run_query(self, conn, query, param):
 
         results = {}
 
@@ -93,7 +91,11 @@ class SQL_Conn:
 
         with self.connection:
             with self.connection.cursor() as cursor:
-                cursor.execute(query)
+
+                cursor.execute(query,
+                               {
+                                   'input': param
+                               })
 
                 content = cursor.fetchall()
                 if self.type == 'mysql':
