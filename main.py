@@ -4,12 +4,15 @@ from modules.f import f
 from modules.listformat import listformat
 from modules.sql import sql
 from modules.lockscreen import lockscreen
+from modules.update import update
 
 import os
 import sys
 from os import listdir
 from os.path import isfile, join
 import traceback
+
+update().check_for_updates()
 
 while True:
     print('')
