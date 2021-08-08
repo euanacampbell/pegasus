@@ -6,7 +6,7 @@ class update:
     """Format a SQL query"""
 
     def __init__(self):
-        self.__VERSION__ = 'v0.3'
+        self.__VERSION__ = 'v0.4'
 
     def __run__(self, params=None):
 
@@ -32,7 +32,7 @@ class update:
     def update_pegasus(self):
 
         output = subprocess.check_output(
-            ["git", "config", "pull.rebase", "false"]).strip()
+            ["git", "pull"]).strip()
 
         print(output)
         print(output)
