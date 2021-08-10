@@ -2,6 +2,9 @@ import pymysql
 import yaml
 import pyodbc
 from tabulate import tabulate
+from rich.console import Console
+from rich.table import Table
+from rich import print
 
 
 class sql:
@@ -37,13 +40,9 @@ class sql:
         query_details = self.commands[sql_command]
         conn_details = self.connections[query_details['connection']]
 
-        # check parameter passed if required
-        try:
-            sql_param = ' '.join(params[1:])
-        except IndexError:
-            sql_param = None
+        sql_param = ' '.join(params[1:])
 
-        if query_details['parameter'] == True and sql_param == None:
+        if query_details['parameter'] == True and len(sql_param) == 0:
             raise Exception('missing query parameter')
 
         for query in query_details['queries']:
@@ -53,10 +52,22 @@ class sql:
 
             formatted = ', '.join(results['tables'])
 
-            print(f'\ntables: {formatted}')
-            print(tabulate(results['results'],
-                           headers=results['columns'],
-                           tablefmt="pretty"))
+            # print(f'\ntables: {formatted}')
+            print(f"\ntables: [bold blue]{formatted}[/bold blue]")
+            self.print_table(results['results'], results['columns'])
+
+    def print_table(self, results, columns):
+
+        console = Console()
+        table = Table(show_header=True, header_style="bold blue")
+
+        for col in columns:
+            table.add_column(col)
+
+        for row in results:
+            table.add_row(*row)
+
+        console.print(table)
 
 
 class SQL_Conn:
@@ -83,7 +94,7 @@ class SQL_Conn:
         else:
             raise Exception(f"type {self.type} not recognised")
 
-    def run_query(self, conn, query, param):
+    def run_query(self, conn, query, param=None):
 
         results = {}
 
@@ -91,15 +102,27 @@ class SQL_Conn:
 
         with self.connection:
             with self.connection.cursor() as cursor:
-
-                cursor.execute(query,
-                               {
-                                   'input': param
-                               })
+                if param:
+                    cursor.execute(query,
+                                   {
+                                       'input': param
+                                   })
+                else:
+                    cursor.execute(query)
 
                 content = cursor.fetchall()
                 if self.type == 'mysql':
-                    results['results'] = [i.values() for i in content]
+
+                    string_dict = []
+
+                    for row in content:
+                        keys_values = row.items()
+                        string_dict.append({str(key): str(value)
+                                            for key, value in keys_values})
+
+                    results['results'] = [list(i.values())
+                                          for i in string_dict]
+
                 else:
                     results['results'] = [i for i in content]
 

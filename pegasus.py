@@ -11,6 +11,8 @@ import sys
 from os import listdir
 from os.path import isfile, join
 import traceback
+from rich.traceback import install
+install()
 
 update().check_for_updates()
 
