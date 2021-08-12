@@ -103,10 +103,15 @@ class SQL_Conn:
         with self.connection:
             with self.connection.cursor() as cursor:
                 if param:
-                    cursor.execute(query,
-                                   {
-                                       'input': param
-                                   })
+
+                    marker_lookup = {
+                        'sqlserver': '?',
+                        'mysql': '%s'
+                    }
+
+                    query = query.replace('&p',marker_lookup[self.type])
+                    
+                    cursor.execute(query,param)
                 else:
                     cursor.execute(query)
 
@@ -124,7 +129,13 @@ class SQL_Conn:
                                           for i in string_dict]
 
                 else:
-                    results['results'] = [i for i in content]
+                    new_content = []
+                    for res in content:
+                        new_row = [str(i) for i in res]
+                        new_content.append(new_row)
+
+
+                    results['results'] = new_content
 
                 results['columns'] = [i[0] for i in cursor.description]
                 results['tables'] = self.tables_used(query)
