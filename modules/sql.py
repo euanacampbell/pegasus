@@ -1,7 +1,6 @@
 import pymysql
 import yaml
 import pyodbc
-from tabulate import tabulate
 from rich.console import Console
 from rich.table import Table
 from rich import print
@@ -53,13 +52,15 @@ class sql:
             formatted = ', '.join(results['tables'])
 
             # print(f'\ntables: {formatted}')
-            print(f"\ntables: [bold blue]{formatted}[/bold blue]")
+            print(f"\n[bold]{formatted}[/bold]")
             self.print_table(results['results'], results['columns'])
 
     def print_table(self, results, columns):
 
         console = Console()
-        table = Table(show_header=True, header_style="bold blue")
+        table = Table(show_header=True, header_style="bold")
+
+        table.row_styles = ["none", "dim"]
 
         for col in columns:
             table.add_column(col)
@@ -109,9 +110,9 @@ class SQL_Conn:
                         'mysql': '%s'
                     }
 
-                    query = query.replace('&p',marker_lookup[self.type])
-                    
-                    cursor.execute(query,param)
+                    query = query.replace('&p', marker_lookup[self.type])
+
+                    cursor.execute(query, param)
                 else:
                     cursor.execute(query)
 
@@ -133,7 +134,6 @@ class SQL_Conn:
                     for res in content:
                         new_row = [str(i) for i in res]
                         new_content.append(new_row)
-
 
                     results['results'] = new_content
 
