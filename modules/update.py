@@ -6,7 +6,7 @@ class update:
     """Format a SQL query"""
 
     def __init__(self):
-        self.__VERSION__ = 'v0.6'
+        self.__VERSION__ = 'v0.7'
 
     def __run__(self, params=None):
         if len(params) == 0:
