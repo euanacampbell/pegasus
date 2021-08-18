@@ -5,6 +5,7 @@ from modules.listformat import listformat
 from modules.sql import sql
 from modules.lockscreen import lockscreen
 from modules.update import update
+from modules.xmlformat import xmlformat
 
 import os
 import sys
