@@ -1,6 +1,6 @@
 from modules.jsonformat import jsonformat
 from modules.sqlformat import sqlformat
-from modules.f import f
+from modules.format import format
 from modules.listformat import listformat
 from modules.sql import sql
 from modules.lockscreen import lockscreen
