@@ -1,9 +1,11 @@
 import pymysql
+import sqlparse
 import yaml
 import pyodbc
 from rich.console import Console
 from rich.table import Table
 from rich import print
+from modules.generic.clipboard import Clipboard
 
 
 class sql:
@@ -33,13 +35,29 @@ class sql:
             for command in self.commands:
                 desc = self.commands[command]['description']
                 print(f"{command} : {desc}")
+            print(
+                f"\n(type 'copy' or 'view' after your sql command for additional options)")
             return()
 
         # query details for query and connection details for where to run it
-        query_details = self.commands[sql_command]
+        try:
+            query_details = self.commands[sql_command]
+        except:
+            print("invalid sql command, type 'sql help' for available commands")
+            return()
         conn_details = self.connections[query_details['connection']]
 
         sql_param = ' '.join(params[1:])
+
+        command_dispatch = {
+            'copy': self.copy_query,
+            'view': self.view_queries
+
+        }
+
+        if sql_param in command_dispatch:
+            command_dispatch[sql_param](sql_command)
+            return()
 
         if query_details['parameter'] == True and len(sql_param) == 0:
             raise Exception('missing query parameter')
@@ -69,6 +87,32 @@ class sql:
             table.add_row(*row)
 
         console.print(table)
+
+    def view_queries(self, command):
+        queries = self.commands[command]['queries']
+
+        for index, query in enumerate(queries):
+            print(f'\n{index+1}')
+            try:
+                formatted = sqlparse.format(
+                    query, reindent=True, keyword_case='upper')
+                print(formatted)
+            except:
+                print('(issue formatting this one)')
+                print(query)
+
+    def copy_query(self, command):
+
+        queries = self.commands[command]['queries']
+
+        if len(queries) == 1:
+            Clipboard.add_to_clipboard(queries[0])
+        else:
+            self.view_queries(command)
+            number = int(input('\nquery to copy (number): '))
+            Clipboard.add_to_clipboard(queries[number-1])
+
+        print('copied to clipboard')
 
 
 class SQL_Conn:
