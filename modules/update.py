@@ -28,7 +28,7 @@ class update:
 
         if latest_version != self.__VERSION__:
             print(
-                f'\nYou are using Pegasus version {self.__VERSION__}; however, version {latest_version} is available.')
+                f'\nYou are using Pegasus version {self.__VERSION__}; however, version {latest_version} is the latest available.')
             print("Use command 'update run' to update to the latest version.")
         elif latest_version == self.__VERSION__ and print_toggle:
             print(

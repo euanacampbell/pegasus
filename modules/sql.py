@@ -88,15 +88,20 @@ class sql:
 
         console.print(table)
 
+    def format_sql(self, query):
+
+        formatted = sqlparse.format(
+            query, reindent=True, keyword_case='upper')
+
+        return formatted
+
     def view_queries(self, command):
         queries = self.commands[command]['queries']
 
         for index, query in enumerate(queries):
             print(f'\n{index+1}')
             try:
-                formatted = sqlparse.format(
-                    query, reindent=True, keyword_case='upper')
-                print(formatted)
+                print(self.format_sql(query))
             except:
                 print('(issue formatting this one)')
                 print(query)
@@ -106,11 +111,11 @@ class sql:
         queries = self.commands[command]['queries']
 
         if len(queries) == 1:
-            Clipboard.add_to_clipboard(queries[0])
+            Clipboard.add_to_clipboard(self.format_sql(queries[0]))
         else:
             self.view_queries(command)
             number = int(input('\nquery to copy (number): '))
-            Clipboard.add_to_clipboard(queries[number-1])
+            Clipboard.add_to_clipboard(self.format_sql(queries[number-1]))
 
         print('copied to clipboard')
 
