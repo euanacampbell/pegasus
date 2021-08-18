@@ -9,7 +9,9 @@ class update:
         self.__VERSION__ = 'v0.6'
 
     def __run__(self, params=None):
-
+        if len(params) == 0:
+            print("did you mean to use 'update check' or 'update run'?")
+            return()
         if params[0] == 'check':
             self.check_for_updates(True)
         elif params[0] == 'run':

@@ -1,11 +1,7 @@
-from modules.jsonformat import jsonformat
-from modules.sqlformat import sqlformat
 from modules.format import format
-from modules.listformat import listformat
 from modules.sql import sql
 from modules.lockscreen import lockscreen
 from modules.update import update
-from modules.xmlformat import xmlformat
 
 import os
 import sys
@@ -39,7 +35,7 @@ while True:
                 description = instance.__doc__
 
             except KeyError:
-                description = f'Unavailable: Not imported in main'
+                description = f'Error: Not imported in main'
             print(f' - {description}')
 
     elif command == 'exit':
@@ -52,7 +48,9 @@ while True:
         try:
             module = globals()[command]()
         except KeyError as e:
-            print('Unavailable: Not imported in main')
+            print(
+                f"Error: '{command}' command not recognised, check it has been imported.")
+
             continue
         except:
             traceback.print_exc()
