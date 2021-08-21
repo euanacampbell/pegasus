@@ -1,5 +1,6 @@
 from requests import get
 import subprocess
+import sys
 
 
 class update:
@@ -40,6 +41,7 @@ class update:
             ["git", "pull"]).strip()
 
         print(output.decode("utf-8"))
+        sys.exit()
 
 
 if __name__ == "__main__":

@@ -6,6 +6,9 @@ from rich.console import Console
 from rich.table import Table
 from rich import print
 from modules.generic.clipboard import Clipboard
+from tabulate import tabulate
+import os
+import psutil
 
 
 class sql:
@@ -75,18 +78,25 @@ class sql:
 
     def print_table(self, results, columns):
 
-        console = Console()
-        table = Table(show_header=True, header_style="bold")
+        terminal_type = psutil.Process(os.getppid()).name()
 
-        table.row_styles = ["none", "dim"]
+        rich_accepted = ['zsh', 'pwsh']
 
-        for col in columns:
-            table.add_column(col)
+        if terminal_type in rich_accepted:
+            console = Console()
+            table = Table(show_header=True, header_style="bold")
 
-        for row in results:
-            table.add_row(*row)
+            table.row_styles = ["none", "dim"]
 
-        console.print(table)
+            for col in columns:
+                table.add_column(col)
+
+            for row in results:
+                table.add_row(*row)
+
+            console.print(table)
+        else:
+            print(tabulate(results, headers=columns, tablefmt="pretty"))
 
     def format_sql(self, query):
 
@@ -159,9 +169,16 @@ class SQL_Conn:
                         'mysql': '%s'
                     }
 
+                    # get number of markers a
+                    marker_count = query.count('&p')
+
+                    # insert correct marker
                     query = query.replace('&p', marker_lookup[self.type])
 
-                    cursor.execute(query, param)
+                    # create parameter for every marker (allows for multiple markers)
+                    params = [param for i in range(0, marker_count)]
+
+                    cursor.execute(query, params)
                 else:
                     cursor.execute(query)
 
