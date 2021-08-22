@@ -9,11 +9,9 @@ from os import listdir
 from os.path import isfile, join
 import traceback
 from rich.traceback import install
-install()
 
-update().check_for_updates()
 
-while True:
+def loop():
     print('')
     # input
     text_input = input('command: ')
@@ -41,7 +39,7 @@ while True:
     elif command == 'exit':
         sys.exit()
     elif command == 'reload':
-        continue
+        return
     elif command == 'clear':
         print('\x1b[2J')
     else:
@@ -51,12 +49,22 @@ while True:
             print(
                 f"Error: '{command}' command not recognised, check it has been imported.")
 
-            continue
+            return
         except:
             traceback.print_exc()
-            continue
+            return
 
         try:
             module.__run__(param)
         except:
             traceback.print_exc()
+    return 'success'
+
+
+if __name__ == "__main__":
+    install()
+
+    update().check_for_updates()
+
+    while True:
+        loop()

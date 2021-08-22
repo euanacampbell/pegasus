@@ -24,7 +24,7 @@ class format:
 
         if format_type not in format_dispatch:
             print('format not recognised')
-            return()
+            return
 
         c_board = Clipboard.get_clipboard()
         formatted = format_dispatch[format_type](c_board)
@@ -36,12 +36,12 @@ class format:
             parsed = json.loads(to_format)
         except:
             print('invalid json')
-            return(to_format)
+            return to_format
 
         formatted = json.dumps(parsed, indent=4, sort_keys=True)
 
         print('json formatted')
-        return(formatted)
+        return formatted
 
     def format_sql(self, to_format):
 
@@ -50,10 +50,10 @@ class format:
                 to_format, reindent=True, keyword_case='upper')
         except:
             print('invalid sql')
-            return()
+            return
 
         print('sql formatted')
-        return(formatted)
+        return formatted
 
     def format_xml(self, to_format):
 
@@ -62,10 +62,10 @@ class format:
             pretty_xml = dom.toprettyxml()
         except:
             print('invalid xml')
-            return()
+            return
 
         print('xml formatted')
-        return(pretty_xml)
+        return pretty_xml
 
     def format_list(self, to_format):
 
@@ -79,4 +79,4 @@ class format:
         formatted = f"({formatted})"
 
         print('list formatted')
-        return(formatted)
+        return formatted

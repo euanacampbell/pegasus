@@ -32,7 +32,7 @@ class sql:
             sql_command = params[0]
         except IndexError:
             print("missing sql command, type 'sql help' for options")
-            return()
+            return
 
         if sql_command == 'help':
             for command in self.commands:
@@ -40,14 +40,14 @@ class sql:
                 print(f"{command} : {desc}")
             print(
                 f"\n(type 'copy' or 'view' after your sql command for additional options)")
-            return()
+            return
 
         # query details for query and connection details for where to run it
         try:
             query_details = self.commands[sql_command]
         except:
             print("invalid sql command, type 'sql help' for available commands")
-            return()
+            return
         conn_details = self.connections[query_details['connection']]
 
         sql_param = ' '.join(params[1:])
@@ -60,7 +60,7 @@ class sql:
 
         if sql_param in command_dispatch:
             command_dispatch[sql_param](sql_command)
-            return()
+            return
 
         if query_details['parameter'] == True and len(sql_param) == 0:
             raise Exception('missing query parameter')
@@ -229,4 +229,4 @@ class SQL_Conn:
                     formatted_table = formatted_table.replace(char, "")
 
                 tables.append(formatted_table)
-        return(set(tables))
+        return set(tables)
