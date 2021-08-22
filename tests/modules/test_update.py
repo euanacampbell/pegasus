@@ -8,11 +8,10 @@ def test_getting_version():
 
     latest = u.get_latest_version()
 
-    test_examples = []
+    regex_tests = [
+        "^v",
+        "."
+    ]
 
-    test_examples.append(re.match("^v", latest))
-    test_examples.append(re.match(".", latest))
-    test_examples.append(re.match("^v(\d+\.)?(\d+\.)?(\*|\d+)$", latest))
-
-    for test_result in test_examples:
-        assert test_result
+    for regex in regex_tests:
+        assert re.match(regex, latest)
