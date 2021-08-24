@@ -16,14 +16,35 @@ class sql:
 
     def __init__(self):
 
+        pass
+    
+    def setup(self):
         with open('sql.yaml', 'r') as stream:
             config = yaml.safe_load(stream)
 
-        self.connections = config['connections']
-        self.commands = config['commands']
-        self.combi_commands = config['combined_commands']
+        try:
+            self.connections = config['connections']
+        except KeyError:
+            print('missing rich_tables value in sql.yaml file')
+
+        try:
+            self.commands = config['commands']
+        except KeyError:
+            print('missing rich_tables value in sql.yaml file')
+            
+        try:
+            self.combi_commands = config['combined_commands']
+        except KeyError:
+            print('missing rich_tables value in sql.yaml file')
+
+        try:
+            self.rich_tables = config['rich_tables']
+        except KeyError:
+            print('missing rich_tables value in sql.yaml file')
 
     def __run__(self, params=None):
+        
+        self.setup()
 
         # check a sql command has been passed
         try:
@@ -50,6 +71,7 @@ class sql:
             self.run_command(sql_command, sql_param)
         elif sql_command in self.combi_commands:
             for command in self.combi_commands[sql_command]['commands']:
+                print(f"\n{command}")
                 self.run_command(command, sql_param)
         else:
             print('command not recognised')
@@ -70,16 +92,12 @@ class sql:
 
             formatted = ', '.join(results['tables'])
 
-            print(f"\n[bold]{formatted}[/bold]")
+            # print(f"\n[bold]{formatted}[/bold]")
             self.print_table(results['results'], results['columns'])
 
     def print_table(self, results, columns):
 
-        terminal_type = psutil.Process(os.getppid()).name()
-
-        rich_accepted = ['zsh', 'pwsh']
-
-        if terminal_type in rich_accepted:
+        if self.rich_tables:
             console = Console()
             table = Table(show_header=True, header_style="bold")
 
@@ -147,6 +165,21 @@ class sql:
             f"\n(type 'copy' or 'view' after your sql command for additional options)")
 
         return
+    
+    def reformat_yaml(self):
+        """Converts any multi-line sql commands into a single line to make the config more readable"""
+
+        with open('sql.yaml') as f:
+            doc = yaml.load(f)
+
+        commands = doc['commands']
+        for command in commands:
+            for query in command['queries']:
+                formatted_query = query.replace('\n','')
+                commands[command][]
+
+        with open('sql.yaml', 'w') as f:
+            yaml.dump(doc, f)
 
 
 class SQL_Conn:

@@ -1,3 +1,5 @@
+rich_tables: false
+
 connections:
   a_sql_server:
     type: sqlserver
