@@ -48,7 +48,7 @@ class update:
             ["git", "pull"]).strip()
 
         print(output.decode("utf-8"))
-        sys.exit()
+        print('\nplease restart for updates to apply')
 
 
 if __name__ == "__main__":
