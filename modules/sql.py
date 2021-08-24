@@ -15,36 +15,24 @@ class sql:
     """Run a predetermined SQL command"""
 
     def __init__(self):
+        """Checks all contents exist in the yaml file"""
 
-        pass
-    
-    def setup(self):
         with open('sql.yaml', 'r') as stream:
             config = yaml.safe_load(stream)
 
-        try:
-            self.connections = config['connections']
-        except KeyError:
-            print('missing rich_tables value in sql.yaml file')
+        config_requirements = ['connections',
+                               'commands', 'combined_commands', 'better_tables', 'auto_format_queries']
 
-        try:
-            self.commands = config['commands']
-        except KeyError:
-            print('missing rich_tables value in sql.yaml file')
-            
-        try:
-            self.combi_commands = config['combined_commands']
-        except KeyError:
-            print('missing rich_tables value in sql.yaml file')
-
-        try:
-            self.rich_tables = config['rich_tables']
-        except KeyError:
-            print('missing rich_tables value in sql.yaml file')
+        for section in config_requirements:
+            try:
+                setattr(self, section, config[section])
+            except KeyError:
+                raise Exception(f"\nmissing '{section}' from sql.yaml file\n")
 
     def __run__(self, params=None):
-        
-        self.setup()
+
+        if self.auto_format_queries:
+            self.reformat_yaml()
 
         # check a sql command has been passed
         try:
@@ -69,8 +57,8 @@ class sql:
         # runs either single or combi command
         if sql_command in self.commands:
             self.run_command(sql_command, sql_param)
-        elif sql_command in self.combi_commands:
-            for command in self.combi_commands[sql_command]['commands']:
+        elif sql_command in self.combined_commands:
+            for command in self.combined_commands[sql_command]['commands']:
                 print(f"\n{command}")
                 self.run_command(command, sql_param)
         else:
@@ -78,26 +66,25 @@ class sql:
             return
 
     def run_command(self, command, param):
+        """Takes a given command/param and runs it"""
 
         query_details = self.commands[command]
 
         if query_details['parameter'] == True and len(param) == 0:
             raise Exception('missing query parameter')
 
-        conn_details = self.connections[query_details['connection']]
         for query in query_details['queries']:
 
             sql_i = SQL_Conn()
-            results = sql_i.run_query(conn_details, query, param)
+            results = sql_i.run_query(
+                self.connections[query_details['connection']], query, param)
 
-            formatted = ', '.join(results['tables'])
-
-            # print(f"\n[bold]{formatted}[/bold]")
             self.print_table(results['results'], results['columns'])
 
     def print_table(self, results, columns):
+        """Displaying the query results"""
 
-        if self.rich_tables:
+        if self.better_tables:
             console = Console()
             table = Table(show_header=True, header_style="bold")
 
@@ -115,68 +102,60 @@ class sql:
 
     def format_sql(self, query):
 
-        formatted = sqlparse.format(
+        return sqlparse.format(
             query, reindent=True, keyword_case='upper')
 
-        return formatted
-
     def view_queries(self, command):
-        queries = self.commands[command]['queries']
 
-        for index, query in enumerate(queries):
+        for index, query in enumerate(self.commands[command]['queries']):
             print(f'\n{index+1}')
             try:
-                query = query.replace('&p', "''")
-                print(self.format_sql(query))
+                query = self.format_sql(query)
             except:
                 print('(issue formatting this one)')
-                query = query.replace('&p', "''")
-                print(query)
+            query = query.replace('&p', "''")
+            print(query)
 
     def copy_query(self, command):
 
         queries = self.commands[command]['queries']
-
-        if len(queries) == 1:
-            query = self.format_sql(queries[0])
-            query = query.replace('&p', "''")
-        else:
+        query_needed = 0
+        if len(queries) != 1:
             self.view_queries(command)
-            number = int(input('\nquery to copy (number): '))
-            query = self.format_sql(queries[number-1])
+            query_needed = int(input('\nquery to copy (number): '))-1
+
+        query = self.format_sql(queries[query_needed])
+
         query = query.replace('&p', "''")
         Clipboard.add_to_clipboard(query)
 
-        print('copied to clipboard')
+        print('\ncopied to clipboard')
 
     def help(self, command):
 
-        print("\nsql commands")
-        for command in self.commands:
-            desc = self.commands[command]['description']
-            print(f"{command} : {desc}")
-
-        print("\ncombined sql commands")
-        for command in self.combi_commands:
-            desc = self.combi_commands[command]['description']
-            print(f"{command} : {desc}")
+        sections = [self.commands, self.combined_commands]
+        for section in sections:
+            for command in section:
+                desc = section[command]['description']
+                print(f"{command} : {desc}")
 
         print(
             f"\n(type 'copy' or 'view' after your sql command for additional options)")
 
-        return
-    
     def reformat_yaml(self):
         """Converts any multi-line sql commands into a single line to make the config more readable"""
 
         with open('sql.yaml') as f:
-            doc = yaml.load(f)
+            doc = yaml.safe_load(f)
 
         commands = doc['commands']
         for command in commands:
-            for query in command['queries']:
-                formatted_query = query.replace('\n','')
-                commands[command][]
+            new_queries = []
+            for query in commands[command]['queries']:
+                formatted_query = query.replace('\n', '')
+                new_queries.append(formatted_query)
+
+            doc['commands'][command]['queries'] = new_queries
 
         with open('sql.yaml', 'w') as f:
             yaml.dump(doc, f)
@@ -222,15 +201,8 @@ class SQL_Conn:
                         'azure': '?'
                     }
 
-                    # get number of markers a
-                    marker_count = query.count('&p')
-
-                    # insert correct marker
                     query = query.replace('&p', marker_lookup[self.type])
-
-                    # create parameter for every marker (allows for multiple markers)
-                    params = [param for i in range(0, marker_count)]
-
+                    params = [param for i in range(0, query.count('&p'))]
                     cursor.execute(query, params)
                 else:
                     cursor.execute(query)
@@ -257,29 +229,7 @@ class SQL_Conn:
                     results['results'] = new_content
 
                 results['columns'] = [i[0] for i in cursor.description]
-                results['tables'] = self.tables_used(query)
 
             self.connection.commit()
 
         return results
-
-    def tables_used(self, query):
-
-        query_list = [word for word in query.split(' ') if word]
-
-        tables = []
-
-        for index, word in enumerate(query_list):
-
-            if word in ('FROM', 'JOIN', 'from', 'join') and query_list[index+1] not in tables:
-
-                table = query_list[index+1].lower()
-                formatted_table = table.split('.')[-1]
-
-                remove_characters = ['(', ')', '[', ']']
-
-                for char in remove_characters:
-                    formatted_table = formatted_table.replace(char, "")
-
-                tables.append(formatted_table)
-        return set(tables)
