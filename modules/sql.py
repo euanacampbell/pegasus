@@ -17,13 +17,11 @@ class sql:
     def __init__(self):
 
         with open('sql.yaml', 'r') as stream:
-            try:
-                config = yaml.safe_load(stream)
-            except yaml.YAMLError as exc:
-                raise Exception(exc)
+            config = yaml.safe_load(stream)
 
         self.connections = config['connections']
-        self.commands = config['sql_commands']
+        self.commands = config['commands']
+        self.combi_commands = config['combined_commands']
 
     def __run__(self, params=None):
 
@@ -34,45 +32,44 @@ class sql:
             print("missing sql command, type 'sql help' for options")
             return
 
-        if sql_command == 'help':
-            for command in self.commands:
-                desc = self.commands[command]['description']
-                print(f"{command} : {desc}")
-            print(
-                f"\n(type 'copy' or 'view' after your sql command for additional options)")
-            return
-
-        # query details for query and connection details for where to run it
-        try:
-            query_details = self.commands[sql_command]
-        except:
-            print("invalid sql command, type 'sql help' for available commands")
-            return
-        conn_details = self.connections[query_details['connection']]
-
         sql_param = ' '.join(params[1:])
 
+        # module commands
         command_dispatch = {
             'copy': self.copy_query,
-            'view': self.view_queries
-
+            'view': self.view_queries,
+            'help': self.help
         }
 
-        if sql_param in command_dispatch:
-            command_dispatch[sql_param](sql_command)
+        if sql_command in command_dispatch:
+            command_dispatch[sql_command](sql_param)
             return
 
-        if query_details['parameter'] == True and len(sql_param) == 0:
+        # runs either single or combi command
+        if sql_command in self.commands:
+            self.run_command(sql_command, sql_param)
+        elif sql_command in self.combi_commands:
+            for command in self.combi_commands[sql_command]['commands']:
+                self.run_command(command, sql_param)
+        else:
+            print('command not recognised')
+            return
+
+    def run_command(self, command, param):
+
+        query_details = self.commands[command]
+
+        if query_details['parameter'] == True and len(param) == 0:
             raise Exception('missing query parameter')
 
+        conn_details = self.connections[query_details['connection']]
         for query in query_details['queries']:
 
             sql_i = SQL_Conn()
-            results = sql_i.run_query(conn_details, query, sql_param)
+            results = sql_i.run_query(conn_details, query, param)
 
             formatted = ', '.join(results['tables'])
 
-            # print(f'\ntables: {formatted}')
             print(f"\n[bold]{formatted}[/bold]")
             self.print_table(results['results'], results['columns'])
 
@@ -111,9 +108,11 @@ class sql:
         for index, query in enumerate(queries):
             print(f'\n{index+1}')
             try:
+                query = query.replace('&p', "''")
                 print(self.format_sql(query))
             except:
                 print('(issue formatting this one)')
+                query = query.replace('&p', "''")
                 print(query)
 
     def copy_query(self, command):
@@ -121,13 +120,33 @@ class sql:
         queries = self.commands[command]['queries']
 
         if len(queries) == 1:
-            Clipboard.add_to_clipboard(self.format_sql(queries[0]))
+            query = self.format_sql(queries[0])
+            query = query.replace('&p', "''")
         else:
             self.view_queries(command)
             number = int(input('\nquery to copy (number): '))
-            Clipboard.add_to_clipboard(self.format_sql(queries[number-1]))
+            query = self.format_sql(queries[number-1])
+        query = query.replace('&p', "''")
+        Clipboard.add_to_clipboard(query)
 
         print('copied to clipboard')
+
+    def help(self, command):
+
+        print("\nsql commands")
+        for command in self.commands:
+            desc = self.commands[command]['description']
+            print(f"{command} : {desc}")
+
+        print("\ncombined sql commands")
+        for command in self.combi_commands:
+            desc = self.combi_commands[command]['description']
+            print(f"{command} : {desc}")
+
+        print(
+            f"\n(type 'copy' or 'view' after your sql command for additional options)")
+
+        return
 
 
 class SQL_Conn:
@@ -166,7 +185,8 @@ class SQL_Conn:
 
                     marker_lookup = {
                         'sqlserver': '?',
-                        'mysql': '%s'
+                        'mysql': '%s',
+                        'azure': '?'
                     }
 
                     # get number of markers a

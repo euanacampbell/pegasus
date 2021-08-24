@@ -43,6 +43,7 @@ def loop():
     elif command == 'clear':
         print('\x1b[2J')
     else:
+        module = globals()[command]()
         try:
             module = globals()[command]()
         except KeyError as e:

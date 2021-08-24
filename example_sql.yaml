@@ -20,6 +20,8 @@ sql_commands:
       - "SELECT TOP (20) *
         FROM random_log
         ORDER BY datetime DESC"
+      - "SELECT TOP (20) *
+        FROM another_log"
   command_name:
     description: search for specific thing in audit
     parameter: true
