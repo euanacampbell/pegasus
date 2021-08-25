@@ -7,7 +7,7 @@ class update:
     """Check if you're running the latest version and update to the latest release."""
 
     def __init__(self):
-        self.__VERSION__ = 'v0.11'
+        self.__VERSION__ = 'v0.12'
 
     def __run__(self, params=None):
         if len(params) == 0:

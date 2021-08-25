@@ -154,7 +154,6 @@ class sql:
             for query in commands[command]['queries']:
                 formatted_query = query.replace('\n', '')
                 new_queries.append(formatted_query)
-                print(formatted_query)
 
             doc['commands'][command]['queries'] = new_queries
 
