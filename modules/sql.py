@@ -154,11 +154,12 @@ class sql:
             for query in commands[command]['queries']:
                 formatted_query = query.replace('\n', '')
                 new_queries.append(formatted_query)
+                print(formatted_query)
 
             doc['commands'][command]['queries'] = new_queries
 
         with open('sql.yaml', 'w') as f:
-            yaml.dump(doc, f)
+            yaml.dump(doc, f, width=2000)
 
 
 class SQL_Conn:
@@ -186,7 +187,6 @@ class SQL_Conn:
             raise Exception(f"type {self.type} not recognised")
 
     def run_query(self, conn, query, param=None):
-
         results = {}
 
         self.get_connection(conn)
@@ -200,9 +200,9 @@ class SQL_Conn:
                         'mysql': '%s',
                         'azure': '?'
                     }
-
-                    query = query.replace('&p', marker_lookup[self.type])
                     params = [param for i in range(0, query.count('&p'))]
+                    query = query.replace('&p', marker_lookup[self.type])
+
                     cursor.execute(query, params)
                 else:
                     cursor.execute(query)
