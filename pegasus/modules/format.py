@@ -2,11 +2,11 @@ import sqlparse
 import json
 import xml.dom.minidom
 
-from modules.generic.clipboard import Clipboard
+from pegasus.modules.generic.clipboard import Clipboard
 
 
 class format:
-    'Format various things.'
+    'Format json, sql, xml, and sql lists from your clipboard.'
 
     def __init__(self):
         pass
@@ -30,17 +30,17 @@ class format:
         formatted = format_dispatch[format_type](c_board)
         Clipboard.add_to_clipboard(formatted)
 
+        return f'formatted {format_type}'
+
     def format_json(self, to_format):
 
         try:
             parsed = json.loads(to_format)
         except:
-            print('invalid json')
-            return to_format
+            return 'invalid json'
 
         formatted = json.dumps(parsed, indent=4, sort_keys=True)
 
-        print('json formatted')
         return formatted
 
     def format_sql(self, to_format):
@@ -49,10 +49,8 @@ class format:
             formatted = sqlparse.format(
                 to_format, reindent=True, keyword_case='upper')
         except:
-            print('invalid sql')
-            return
+            return 'invalid sql'
 
-        print('sql formatted')
         return formatted
 
     def format_xml(self, to_format):
@@ -61,8 +59,7 @@ class format:
             dom = xml.dom.minidom.parseString(to_format)
             pretty_xml = dom.toprettyxml()
         except:
-            print('invalid xml')
-            return
+            return 'invalid xml'
 
         print('xml formatted')
         return pretty_xml

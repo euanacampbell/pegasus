@@ -1,0 +1,54 @@
+div.half {
+    height: 100vh;
+}
+
+div.photo {
+    background-color: darkslategrey;
+    background-image: url("/static/images/together.jpg");
+    background-position: center; 
+}
+
+
+div.half {
+    height: 50vh;
+}
+
+
+form
+{
+    margin-top: 12.5%;
+    margin-bottom: 12.5%;
+}
+
+
+.title {
+    padding: 5vh 0;
+    text-align: center;
+}
+
+h1.text-title {
+    color: grey;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 5vw;
+}
+
+h3.text-title {
+    color: grey;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 3.5vw;
+}
+
+h5.text-title {
+    color: grey;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 1.5vw;
+}
+
+p {
+    color: grey;
+    font-family: 'Josefin Sans', sans-serif; 
+}
+
+.container .codebox {
+    width: 5vw;
+}

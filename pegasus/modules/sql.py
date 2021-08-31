@@ -5,14 +5,14 @@ import pyodbc
 from rich.console import Console
 from rich.table import Table
 from rich import print
-from modules.generic.clipboard import Clipboard
+from pegasus.modules.generic.clipboard import Clipboard
 from tabulate import tabulate
 import os
 import psutil
 
 
 class sql:
-    """Run a predetermined SQL command"""
+    """Run a predetermined SQL command. Use 'sql help' for available commands."""
 
     def __init__(self):
         """Checks all contents exist in the yaml file"""
@@ -38,8 +38,8 @@ class sql:
         try:
             sql_command = params[0]
         except IndexError:
-            print("missing sql command, type 'sql help' for options")
-            return
+            raise Exception(
+                "SQL command missing, type 'sql help' for available commands")
 
         sql_param = ' '.join(params[1:])
 
@@ -51,19 +51,21 @@ class sql:
         }
 
         if sql_command in command_dispatch:
-            command_dispatch[sql_command](sql_param)
-            return
+            return command_dispatch[sql_command](sql_param)
 
         # runs either single or combi command
         if sql_command in self.commands:
-            self.run_command(sql_command, sql_param)
+            all_results = self.run_command(sql_command, sql_param)
         elif sql_command in self.combined_commands:
+            all_results = []
             for command in self.combined_commands[sql_command]['commands']:
-                print(f"\n{command}")
-                self.run_command(command, sql_param)
+                for r in self.run_command(command, sql_param):
+                    all_results.append(r)
+            return all_results
         else:
-            print('command not recognised')
-            return
+            raise ValueError(f'Command not recognised: {sql_command}')
+
+        return all_results
 
     def run_command(self, command, param):
         """Takes a given command/param and runs it"""
@@ -71,15 +73,23 @@ class sql:
         query_details = self.commands[command]
 
         if query_details['parameter'] == True and len(param) == 0:
-            raise Exception('missing query parameter')
+            raise ValueError('missing query parameter')
 
+        all_results = []
         for query in query_details['queries']:
 
             sql_i = SQL_Conn()
             results = sql_i.run_query(
                 self.connections[query_details['connection']], query, param)
 
-            self.print_table(results['results'], results['columns'])
+            query_results = {
+                'results': results['results'],
+                'columns': results['columns']
+            }
+            all_results.append(query_results)
+
+        return all_results
+        # self.print_table(results['results'], results['columns'])
 
     def print_table(self, results, columns):
         """Displaying the query results"""
@@ -107,14 +117,14 @@ class sql:
 
     def view_queries(self, command):
 
-        for index, query in enumerate(self.commands[command]['queries']):
-            print(f'\n{index+1}')
-            try:
-                query = self.format_sql(query)
-            except:
-                print('(issue formatting this one)')
-            query = query.replace('&p', "''")
-            print(query)
+        queries = []
+
+        for query in self.commands[command]['queries']:
+            query.replace('&p', "''")
+            queries.append(self.format_sql(query))
+
+        print(queries)
+        return queries
 
     def copy_query(self, command):
 
@@ -133,11 +143,31 @@ class sql:
 
     def help(self, command):
 
+        results_format = [{
+            'results': [],
+            'columns': ['command', 'description']
+        }]
+
         sections = [self.commands, self.combined_commands]
         for section in sections:
             for command in section:
                 desc = section[command]['description']
                 print(f"{command} : {desc}")
+
+                results_format[0]['results'].append([command, desc])
+
+        return results_format
+        # for query in query_details['queries']:
+
+        #     sql_i = SQL_Conn()
+        #     results = sql_i.run_query(
+        #         self.connections[query_details['connection']], query, param)
+
+        #     query_results = {
+        #         'results': results['results'],
+        #         'columns': results['columns']
+        #     }
+        #     all_results.append(query_results)
 
         print(
             f"\n(type 'copy' or 'view' after your sql command for additional options)")
