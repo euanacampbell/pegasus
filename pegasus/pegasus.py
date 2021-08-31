@@ -105,6 +105,7 @@ class Pegasus:
 
         return {
             'command': self.user_input,
+            'available_commands': self.available_commands(),
             'response': built_response,
             'error': error
         }
@@ -125,6 +126,13 @@ class Pegasus:
             result_type = 'error'
 
         return result_type
+
+    def available_commands(self):
+
+        commands = self.help()[0]
+        commands = [command[0] for command in commands]
+
+        return commands
 
 
 if __name__ == "__main__":

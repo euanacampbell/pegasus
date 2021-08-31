@@ -118,11 +118,24 @@ class sql:
 
         queries = []
 
-        for query in self.commands[command]['queries']:
-            query.replace('&p', "''")
-            queries.append(self.format_sql(query))
+        if command not in self.commands and command not in self.combined_commands:
+            raise Exception(
+                f"Command '{command}' not recognised.")
 
-        print(queries)
+        if command in self.commands:
+            for query in self.commands[command]['queries']:
+                query.replace('&p', "''")
+                queries.append(self.format_sql(query))
+
+        if command in self.combined_commands:
+            sub_commands = [
+                query for query in self.combined_commands[command]['commands']]
+            for comm in sub_commands:
+                queries.append(comm)
+                for comm in self.commands[comm]['queries']:
+                    comm.replace('&p', "''")
+                    queries.append(self.format_sql(comm))
+
         return queries
 
     def copy_query(self, command):
@@ -145,31 +158,16 @@ class sql:
         results_format = [{
             'results': [],
             'columns': ['command', 'description']
-        }]
+        }, f"\nUse 'sql copy' or 'sql view' for additional options."]
 
         sections = [self.commands, self.combined_commands]
         for section in sections:
             for command in section:
                 desc = section[command]['description']
-                print(f"{command} : {desc}")
 
                 results_format[0]['results'].append([command, desc])
 
         return results_format
-        # for query in query_details['queries']:
-
-        #     sql_i = SQL_Conn()
-        #     results = sql_i.run_query(
-        #         self.connections[query_details['connection']], query, param)
-
-        #     query_results = {
-        #         'results': results['results'],
-        #         'columns': results['columns']
-        #     }
-        #     all_results.append(query_results)
-
-        print(
-            f"\n(type 'copy' or 'view' after your sql command for additional options)")
 
     def reformat_yaml(self):
         """Converts any multi-line sql commands into a single line to make the config more readable"""
