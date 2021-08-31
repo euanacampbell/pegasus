@@ -44,62 +44,72 @@
 
         <!-- <div name="results" style="border: 1px; border-style: solid; border-radius: 5px; border-color: darkgray;padding: 5px;"> -->
         <div>
-
-          <!-- STRING -->
-          {% if info['result_type']=='string' %}
-            <p>{{ info['results'] }}</p>
-          
-          <!-- ERROR -->
-          {% elif info['result_type']=='error' %}
-            <div class="alert alert-danger" role="alert">
-              {{ info['results'] }}
-            </div>
-          
-          <!-- LISTOFDICT -->
-          {% elif info['result_type']=='listofdict' %}
-            {% for table in info['results'] %}
-            <table class="table table-hover table-bordered align-middle">
-              <thead>
-                <tr>
-              {% for row in table['columns'] %}
-                <th>{{ row }}</th>
-              {% endfor %}
-                </tr>
-              </thead>
-              <tbody>
-              {% for row in table['results'] %}
-                  <tr>
-                      {% for col in row %}
-                        <td>{{ col }}</td>
-                      {% endfor %}
-                  </tr>
-              {% endfor %}
-              </tbody>
-              </table>
-            {% endfor %}
-          <!-- LIST OF LISTS -->
-          {% elif info['result_type']=='listoflist' %}
-            <table class="table align-middle">
-              <tbody>
-              {% for row in info['results'] %}
-                  <tr>
-                      {% for col in row %}
-                        <td>{{ col }}</td>
-                      {% endfor %}
-                  </tr>
-              {% endfor %}
-              </tbody>
-              </table>
-          {% elif info['result_type']=='list' %}
+          <!-- <p>{{ info }}</p> -->
+          <!-- loop through content response -->
+          {% for item in info['response'] %}
+            <!-- STRING -->
+            {% if item['type']=='string' %}
+              {% if item['content'][0:6]=='SELECT' %}
+                <textarea class="form-control" id="exampleFormControlTextarea1" style='overflow: auto; margin-bottom: 5px;' rows="{{ item['content'].split('\n') | length }}">{{ item['content'] }}</textarea>
+              {% else%}
+                <pre>{{ item['content'] }}</pre>
+            {% endif %}
             
-              {% for row in info['results'] %}
+            <!-- ERROR -->
+            {% elif item['type']=='error' %}
+              <div class="alert alert-danger" role="alert">
+                {{ item['content'] }}
+              </div>
+
+            <!-- DICTOFLIST-->
+            {% elif item['type']=='dictoflist' %}
+              <table class="table table-hover table-bordered align-middle">
+                <thead>
+                  <tr>
+                {% for row in item['content']['columns'] %}
+                  <th>{{ row }}</th>
+                {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                {% for row in item['content']['results'] %}
+                    <tr>
+                        {% for col in row %}
+                          <td>{{ col }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            
+            <!-- LIST OF LISTS -->
+            {% elif item['type']=='listoflist' %}
+              <table class="table align-middle">
+                <tbody>
+                {% for row in item['content'] %}
+                    <tr>
+                        {% for col in row %}
+                          <td>{{ col }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+                </table>
+            <!-- LIST -->
+            {% elif item['type']=='list' %}
+              {% for row in item['content'] %}
                 <textarea class="form-control" id="exampleFormControlTextarea1" style='overflow: auto; margin-bottom: 5px;' rows="{{ row.split('\n') | length }}">{{ row }}</textarea>
               {% endfor %}
-          <!-- ELSE -->
-          {% else%}
-              <p1>not picked up: {{ info['result_type'] }}</p1>
-          {% endif %}
+            <!-- ELSE -->
+            {% else%}
+                <p1>not picked up: {{ item['type'] }}</p1>
+                
+            
+            {% endif %}
           
+          
+          
+            {% endfor %}
 
 
         </div>

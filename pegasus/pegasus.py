@@ -2,6 +2,7 @@ from pegasus.modules.format import format
 from pegasus.modules.sql import sql
 from pegasus.modules.lockscreen import lockscreen
 from pegasus.modules.update import update
+from pegasus.modules.test_display import test_display
 
 import os
 import sys
@@ -54,14 +55,14 @@ class Pegasus:
             module = globals()[command]()
         except KeyError as e:
             message = f"Error: '{command}' command not recognised, run 'help' to see available commands."
-            return self.build_return(message, type='error')
+            return self.build_return(message, error='error')
 
         # catch any errors in the command/module
         try:
             module_result = module.__run__(param)
             return self.build_return(module_result)
         except Exception as e:
-            return self.build_return(str(e), type='error')
+            return self.build_return(str(e), error='error')
 
     def help(self):
         current_path = os.path.dirname(os.path.abspath(__file__)) + '/modules'
@@ -78,7 +79,7 @@ class Pegasus:
 
             help_commands.append([file, description])
 
-        return help_commands
+        return [help_commands]
 
     def exit(self):
         sys.exit()
@@ -86,15 +87,26 @@ class Pegasus:
     def clear(self):
         print('\x1b[2J')
 
-    def build_return(self, results, type=None):
+    def build_return(self, response, error=None):
 
-        if not type:
-            type = self.result_type(results)
+        if type(response) not in (dict, list):
+            response = [response]
+
+        built_response = []
+        for item in response:
+            if type(item) == int:
+                item = str(item)
+            new_item = {
+                "type": error or self.result_type(item),
+                "content": item
+            }
+
+            built_response.append(new_item)
 
         return {
             'command': self.user_input,
-            'results': results,
-            'result_type': type
+            'response': built_response,
+            'error': error
         }
 
     def result_type(self, result):
@@ -103,12 +115,12 @@ class Pegasus:
             result_type = 'string'
         elif type(result) is list:
             result_type = 'list'
-            if type(result[0]) is dict:
-                result_type = 'listofdict'
-            elif type(result[0]) is list:
+            if type(result[0]) is list:
                 result_type = 'listoflist'
         elif type(result) is dict:
             result_type = 'dict'
+            if type(result[next(iter(result))]) is list:
+                result_type = 'dictoflist'
         else:
             result_type = 'error'
 

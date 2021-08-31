@@ -59,12 +59,11 @@ class sql:
         elif sql_command in self.combined_commands:
             all_results = []
             for command in self.combined_commands[sql_command]['commands']:
+                all_results.append(command)
                 for r in self.run_command(command, sql_param):
                     all_results.append(r)
-            return all_results
         else:
             raise ValueError(f'Command not recognised: {sql_command}')
-
         return all_results
 
     def run_command(self, command, param):

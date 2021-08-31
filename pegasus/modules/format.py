@@ -23,8 +23,7 @@ class format:
         }
 
         if format_type not in format_dispatch:
-            print('format not recognised')
-            return
+            raise Exception('format not recognised')
 
         c_board = Clipboard.get_clipboard()
         try:
@@ -32,7 +31,7 @@ class format:
             Clipboard.add_to_clipboard(formatted)
             return f'formatted {format_type}'
         except:
-            return f'unable to format to {format_type}'
+            raise Exception(f'unable to format to {format_type}')
 
     def format_json(self, to_format):
 
