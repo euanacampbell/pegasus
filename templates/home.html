@@ -58,7 +58,7 @@
           <!-- LISTOFDICT -->
           {% elif info['result_type']=='listofdict' %}
             {% for table in info['results'] %}
-            <table class="table table-bordered">
+            <table class="table table-hover table-bordered align-middle">
               <thead>
                 <tr>
               {% for row in table['columns'] %}
@@ -79,7 +79,7 @@
             {% endfor %}
           <!-- LIST OF LISTS -->
           {% elif info['result_type']=='listoflist' %}
-            <table class="table table-bordered">
+            <table class="table align-middle">
               <tbody>
               {% for row in info['results'] %}
                   <tr>

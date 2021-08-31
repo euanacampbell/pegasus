@@ -27,17 +27,16 @@ class format:
             return
 
         c_board = Clipboard.get_clipboard()
-        formatted = format_dispatch[format_type](c_board)
-        Clipboard.add_to_clipboard(formatted)
-
-        return f'formatted {format_type}'
+        try:
+            formatted = format_dispatch[format_type](c_board)
+            Clipboard.add_to_clipboard(formatted)
+            return f'formatted {format_type}'
+        except:
+            return f'unable to format to {format_type}'
 
     def format_json(self, to_format):
 
-        try:
-            parsed = json.loads(to_format)
-        except:
-            return 'invalid json'
+        parsed = json.loads(to_format)
 
         formatted = json.dumps(parsed, indent=4, sort_keys=True)
 
@@ -45,23 +44,16 @@ class format:
 
     def format_sql(self, to_format):
 
-        try:
-            formatted = sqlparse.format(
-                to_format, reindent=True, keyword_case='upper')
-        except:
-            return 'invalid sql'
+        formatted = sqlparse.format(
+            to_format, reindent=True, keyword_case='upper')
 
         return formatted
 
     def format_xml(self, to_format):
 
-        try:
-            dom = xml.dom.minidom.parseString(to_format)
-            pretty_xml = dom.toprettyxml()
-        except:
-            return 'invalid xml'
+        dom = xml.dom.minidom.parseString(to_format)
+        pretty_xml = dom.toprettyxml()
 
-        print('xml formatted')
         return pretty_xml
 
     def format_list(self, to_format):
@@ -75,5 +67,4 @@ class format:
         formatted = formatted[:-2]
         formatted = f"({formatted})"
 
-        print('list formatted')
         return formatted

@@ -11,15 +11,14 @@ class update:
 
     def __run__(self, params=None):
         if len(params) == 0:
-            print("did you mean to use 'update check' or 'update run'?")
-            return
+            return "did you mean to use 'update check' or 'update run'?"
         if params[0] == 'check':
-            self.check_for_updates(True)
+            return self.check_for_updates(True)
 
         elif params[0] == 'run':
-            self.update_pegasus()
+            return self.update_pegasus()
         else:
-            print('update command not recognised.')
+            return 'update command not recognised.'
 
     def get_latest_version(self):
 
@@ -35,20 +34,17 @@ class update:
         latest_version = self.get_latest_version()
 
         if latest_version != self.__VERSION__:
-            print(
-                f'\nYou are using Pegasus version {self.__VERSION__}; however, version {latest_version} is the latest available.')
-            print("Use command 'update run' to update to the latest version.")
+            return f"\nYou are using Pegasus version {self.__VERSION__}; however, version {latest_version} is the latest available. Use command 'update run' to update to the latest version."
+
         elif latest_version == self.__VERSION__ and print_toggle == True:
-            print(
-                f'\nYou are using the latest version of Pegasus ({self.__VERSION__}).')
+            return f'\nYou are using the latest version of Pegasus ({self.__VERSION__}).'
 
     def update_pegasus(self):
 
         output = subprocess.check_output(
             ["git", "pull"]).strip()
 
-        print(output.decode("utf-8"))
-        print('\nplease restart for updates to apply')
+        return '\nplease restart for updates to apply'
 
 
 if __name__ == "__main__":
