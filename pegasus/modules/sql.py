@@ -124,8 +124,7 @@ class sql:
 
         if command in self.commands:
             for query in self.commands[command]['queries']:
-                query.replace('&p', "''")
-                queries.append(self.format_sql(query))
+                queries.append(self.format_sql(query.replace('&p', "''")))
 
         if command in self.combined_commands:
             sub_commands = [
@@ -133,8 +132,7 @@ class sql:
             for comm in sub_commands:
                 queries.append(comm)
                 for comm in self.commands[comm]['queries']:
-                    comm.replace('&p', "''")
-                    queries.append(self.format_sql(comm))
+                    queries.append(self.format_sql(comm.replace('&p', "''")))
 
         return queries
 
