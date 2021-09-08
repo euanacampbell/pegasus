@@ -17,12 +17,17 @@ class sql:
     def __init__(self):
         """Checks all contents exist in the yaml file"""
 
+        # load config
         with open('sql.yaml', 'r') as stream:
             config = yaml.safe_load(stream)
 
         config_requirements = ['connections',
-                               'commands', 'combined_commands', 'better_tables', 'auto_format_queries']
+                               'commands',
+                               'combined_commands',
+                               'better_tables',
+                               'auto_format_queries']
 
+        # check correct sections exist in config
         for section in config_requirements:
             try:
                 setattr(self, section, config[section])
@@ -89,6 +94,16 @@ class sql:
 
         return all_results
         # self.print_table(results['results'], results['columns'])
+
+    def subcommands(self):
+
+        # pass back sub-commands (can be called directly without initial command), excludes module commands
+        commands_keys = list(self.commands.keys())
+        combined_commands_keys = list(self.combined_commands.keys())
+
+        sub_commands = commands_keys + combined_commands_keys
+
+        return sub_commands
 
     def print_table(self, results, columns):
         """Displaying the query results"""

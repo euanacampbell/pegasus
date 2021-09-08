@@ -50,12 +50,17 @@ class Pegasus:
             result = system_commands[command]()
             return self.build_return(result)
 
-        # check the command exists
-        try:
+        sub_commands_lookup = self.sub_commands()
+        sub_commands = list(sub_commands_lookup.keys())
+
+        if command in globals():
             module = globals()[command]()
-        except KeyError as e:
-            message = f"Error: '{command}' command not recognised, run 'help' to see available commands."
-            return self.build_return(message, error='error')
+        elif command in sub_commands:  # sub-commands
+            param.insert(0, command)
+            command = sub_commands_lookup[command]
+            module = globals()[command]()
+        else:
+            return self.build_return(f"Error: '{command}' command not recognised, run 'help' to see available commands.", error='error')
 
         # catch any errors in the command/module
         try:
@@ -65,24 +70,49 @@ class Pegasus:
             return self.build_return(str(e), error='error')
 
     def help(self):
-        current_path = os.path.dirname(os.path.abspath(__file__)) + '/modules'
-        files = [f[:-3] for f in listdir(current_path) if isfile(
-            join(current_path, f)) and '__init__' not in f and '.py' in f]
 
         help_commands = []
-        for file in files:
+        for file in self.available_modules():
+
+            # get description
             try:
                 instance = globals()[file]()
                 description = instance.__doc__
+                description += '\nSub-commands: ' + \
+                    ', '.join(instance.subcommands())
             except KeyError:
                 description = f'Error, not imported.'
+            except AttributeError:
+                pass
 
             help_commands.append([file, description])
 
         return [help_commands]
 
+    def sub_commands(self):
+
+        sub_commands = {}
+
+        for file in self.available_modules():
+
+            try:
+                instance = globals()[file]()
+                for command in instance.subcommands():
+                    sub_commands[command] = file
+            except:
+                pass
+
+        return sub_commands
+
     def exit(self):
         sys.exit()
+
+    def available_modules(self):
+        current_path = os.path.dirname(os.path.abspath(__file__)) + '/modules'
+        files = [f[:-3] for f in listdir(current_path) if isfile(
+            join(current_path, f)) and '__init__' not in f and '.py' in f]
+
+        return files
 
     def clear(self):
         print('\x1b[2J')
