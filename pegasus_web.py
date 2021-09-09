@@ -1,9 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, request
-# from data import data
-import json
-import time
 
-from rich.theme import ThemeStack
 from pegasus.pegasus import Pegasus
 
 #  initialise flask
@@ -11,9 +7,6 @@ app = Flask(__name__)
 
 # initialise data store
 pegasus = Pegasus()
-
-
-# Site API - html serving only
 
 
 @app.route('/')
@@ -46,6 +39,5 @@ def page_not_found(e):
     return redirect(url_for('home', info=None))
 
 
-# start the server with the 'run()' method
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=5000)

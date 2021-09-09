@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+    <link rel="icon" href="/assets/pegasus_icon.jpg">
 
     <title>Pegasus</title>
 
@@ -29,7 +29,7 @@
             <div class="input-group-prepend">
               <div class="input-group-text">></div>
             </div>
-            <input list="cars" name="input" type="text" class="form-control" id="input" placeholder="help" type="search" value="{{ info['command'] }}">
+            <input list="cars" name="input" type="text" class="form-control" id="input" placeholder="help" type="search" value="{{ info['command'] }}" autofocus>
             <datalist id="cars">
               {% for command in info['available_commands'] %}
                 <option>{{ command }}</option>

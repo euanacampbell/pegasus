@@ -7,8 +7,8 @@ from rich import print
 from tabulate import tabulate
 
 
-def print_table(body, columns=None):
-    better_tables = False
+def print_table(body, columns=None, better_tables=False):
+
     if better_tables:
         console = Console()
         table = Table(show_header=True, header_style="bold")
@@ -24,24 +24,39 @@ def print_table(body, columns=None):
 
         console.print(table)
     else:
-        print(tabulate(body,
-                       headers=columns, tablefmt="pretty"))
+        if columns:
+            print(tabulate(body,
+                           headers=columns, tablefmt="pretty"))
+        else:
+            print(tabulate(body, tablefmt="pretty"))
 
 
+better_tables = False
 while True:
 
     text_input = input('\ncommand: ')
+
+    if text_input == 'toggle: table_format':
+        better_tables = not better_tables
+        print(f'\nTable formatting now set to {better_tables}')
+        continue
 
     response = Pegasus().run_command(text_input)
 
     for item in response['response']:
         if item['type'] in ('string', 'int', 'error'):
+
             print(f"\n{item['content']}")
         elif item['type'] == 'dictoflist':
             print_table(item['content']['results'],
-                        columns=item['content']['results'])
+                        columns=item['content']['columns'], better_tables=better_tables)
+
         elif item['type'] == 'listoflist':
-            print_table(item['content'])
+            print_table(item['content'], better_tables=better_tables)
+
         elif item['type'] == 'list':
             for i in item:
                 print(i)
+        else:
+            item_type = item['type']
+            print(f'{item_type} not recognised')

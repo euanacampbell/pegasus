@@ -1,6 +1,5 @@
 from pegasus.modules.format import format
 from pegasus.modules.sql import sql
-from pegasus.modules.lockscreen import lockscreen
 from pegasus.modules.update import update
 from pegasus.modules.test_display import test_display
 
@@ -116,6 +115,7 @@ class Pegasus:
 
     def clear(self):
         print('\x1b[2J')
+        return('')
 
     def build_return(self, response, error=None):
 
