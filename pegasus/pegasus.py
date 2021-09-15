@@ -62,10 +62,14 @@ class Pegasus:
             return self.build_return(f"Error: '{command}' command not recognised, run 'help' to see available commands.", error='error')
 
         # catch any errors in the command/module
+        # module_result = module.__run__(param)
+        # return self.build_return(module_result)
+
         try:
             module_result = module.__run__(param)
             return self.build_return(module_result)
         except Exception as e:
+            print()
             return self.build_return(str(e), error='error')
 
     def help(self):

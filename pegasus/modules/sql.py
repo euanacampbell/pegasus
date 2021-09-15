@@ -7,8 +7,7 @@ from rich.table import Table
 from rich import print
 from pegasus.modules.generic.clipboard import Clipboard
 from tabulate import tabulate
-import os
-import psutil
+from pegasus.modules.format import format
 
 
 class sql:
@@ -17,13 +16,11 @@ class sql:
     def __init__(self):
         """Checks all contents exist in the yaml file"""
 
-        # load config
-        with open('sql.yaml', 'r') as stream:
-            config = yaml.safe_load(stream)
+        config = sql_config().load_config()
 
         config_requirements = ['connections',
                                'commands',
-                               'combined_commands',
+                               'queries',
                                'better_tables',
                                'auto_format_queries']
 
@@ -37,7 +34,7 @@ class sql:
     def __run__(self, params=None):
 
         if self.auto_format_queries:
-            self.reformat_yaml()
+            sql_config().reformat_yaml()
 
         # check a sql command has been passed
         try:
@@ -58,33 +55,35 @@ class sql:
         if sql_command in command_dispatch:
             return command_dispatch[sql_command](sql_param)
 
-        # runs either single or combi command
+        # runs either command or individual query
         if sql_command in self.commands:
-            all_results = self.run_command(sql_command, sql_param)
-        elif sql_command in self.combined_commands:
-            all_results = []
-            for command in self.combined_commands[sql_command]['commands']:
-                all_results.append(command)
-                for r in self.run_command(command, sql_param):
-                    all_results.append(r)
+            return self.run_command(sql_command, sql_param)
+        if sql_command in self.queries:
+            return self.run_command(sql_command, sql_param)
         else:
             raise ValueError(f'Command not recognised: {sql_command}')
-        return all_results
 
     def run_command(self, command, param):
         """Takes a given command/param and runs it"""
 
-        query_details = self.commands[command]
-
-        if query_details['parameter'] == True and len(param) == 0:
-            raise ValueError('missing query parameter')
+        if command in self.commands:
+            queries = self.commands[command]['queries']
+        elif command in self.queries:
+            queries = [command]
 
         all_results = []
-        for query in query_details['queries']:
+        for query in queries:
 
-            sql_i = SQL_Conn()
-            results = sql_i.run_query(
-                self.connections[query_details['connection']], query, param)
+            query_details = self.queries[query]
+
+            if query_details['connection'] not in self.connections:
+                all_results.append(f'ERROR: Invalid connection for {query}')
+                continue
+            else:
+                connection_details = self.connections[query_details['connection']]
+
+            results = SQL_Conn().run_query(connection_details,
+                                           query_details['query'], param)
 
             query_results = {
                 'results': results['results'],
@@ -93,36 +92,16 @@ class sql:
             all_results.append(query_results)
 
         return all_results
-        # self.print_table(results['results'], results['columns'])
 
     def subcommands(self):
 
         # pass back sub-commands (can be called directly without initial command), excludes module commands
         commands_keys = list(self.commands.keys())
-        combined_commands_keys = list(self.combined_commands.keys())
+        queries = list(self.queries.keys())
 
-        sub_commands = commands_keys + combined_commands_keys
+        sub_commands = commands_keys + queries
 
         return sub_commands
-
-    def print_table(self, results, columns):
-        """Displaying the query results"""
-
-        if self.better_tables:
-            console = Console()
-            table = Table(show_header=True, header_style="bold")
-
-            table.row_styles = ["none", "dim"]
-
-            for col in columns:
-                table.add_column(col)
-
-            for row in results:
-                table.add_row(*row)
-
-            console.print(table)
-        else:
-            print(tabulate(results, headers=columns, tablefmt="pretty"))
 
     def format_sql(self, query):
 
@@ -171,34 +150,19 @@ class sql:
         results_format = [{
             'results': [],
             'columns': ['command', 'description']
-        }, f"\nUse 'sql copy' or 'sql view' for additional options."]
+        }, f"\nUse 'sql copy' or 'sql view' for additional options.\nVisit /sqlsetup to modify the configuration"]
 
-        sections = [self.commands, self.combined_commands]
+        sections = [self.commands, self.queries]
         for section in sections:
             for command in section:
-                desc = section[command]['description']
+                try:
+                    desc = section[command]['description']
+                except:
+                    desc = ''
 
                 results_format[0]['results'].append([command, desc])
 
         return results_format
-
-    def reformat_yaml(self):
-        """Converts any multi-line sql commands into a single line to make the config more readable"""
-
-        with open('sql.yaml') as f:
-            doc = yaml.safe_load(f)
-
-        commands = doc['commands']
-        for command in commands:
-            new_queries = []
-            for query in commands[command]['queries']:
-                formatted_query = query.replace('\n', '')
-                new_queries.append(formatted_query)
-
-            doc['commands'][command]['queries'] = new_queries
-
-        with open('sql.yaml', 'w') as f:
-            yaml.dump(doc, f, width=2000)
 
 
 class SQL_Conn:
@@ -227,12 +191,13 @@ class SQL_Conn:
 
     def run_query(self, conn, query, param=None):
         results = {}
-
         self.get_connection(conn)
 
         with self.connection:
             with self.connection.cursor() as cursor:
-                if param:
+                if '&p' in query:
+                    if not param:
+                        raise ValueError('Missing query parameter')
 
                     marker_lookup = {
                         'sqlserver': '?',
@@ -272,3 +237,100 @@ class SQL_Conn:
             self.connection.commit()
 
         return results
+
+
+class sql_config:
+
+    def __init__(self):
+        pass
+
+    def load_config(self):
+        with open('configs/sql.yaml', 'r') as stream:
+            config = yaml.safe_load(stream)
+
+        return config
+
+    def update_config(self, new_config):
+
+        with open('configs/sql.yaml', 'w') as f:
+            yaml.dump(new_config, f, width=2000)
+
+    def reformat_yaml(self):
+        """Converts any multi-line sql commands into a single line to make the config more readable"""
+
+        doc = self.load_config()
+
+        queries = doc['queries']
+        for query in queries:
+
+            formatted_query = query.replace('\n', '')
+
+            doc['queries'][query]['query'] = formatted_query
+
+        self.update_config(doc)
+
+    def new_query(self, query_command, connection, query):
+
+        config = self.load_config()
+
+        config['queries'][query_command] = {
+            'query': query,
+            'connection': connection
+        }
+
+        self.update_config(config)
+
+    def delete_query(self, query):
+
+        config = self.load_config()
+
+        del config['queries'][query]
+
+        self.update_config(config)
+
+    def update_settings(self, enabled_settings):
+
+        config = self.load_config()
+
+        skip = ['queries', 'commands', 'connections']
+
+        for item in config:
+            if item not in skip:
+                if item in enabled_settings:
+                    config[item] = True
+                else:
+                    config[item] = False
+
+        self.update_config(config)
+
+    def delete_conn(self, conn):
+
+        config = self.load_config()
+
+        del config['connections'][conn]
+
+        self.update_config(config)
+
+    def update_conn(self, connection_name, connection_details):
+
+        config = self.load_config()
+
+        config['connections'][connection_name] = connection_details
+
+        self.update_config(config)
+
+    def update_command(self, command_name, queries):
+
+        config = self.load_config()
+
+        config['commands'][command_name] = {'queries': queries}
+
+        self.update_config(config)
+
+    def delete_command(self, command_name):
+
+        config = self.load_config()
+
+        del config['commands'][command_name]
+
+        self.update_config(config)

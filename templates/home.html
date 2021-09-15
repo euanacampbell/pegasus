@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="/assets/pegasus_icon.jpg">
+    <link rel="icon" href="assets/pegasus_icon.jpg">
 
     <title>Pegasus</title>
 
@@ -116,4 +116,12 @@
     </script>
 
   </body>
+
+  <footer>
+    {% if info %}
+      {% if 'sql' in info['command'] %}
+      <div class="container"><a href="/sqlsetup" class="btn btn-primary">SQL Setup</a></div>
+      {% endif %}
+    {% endif %}
+  </footer>
 </html>
