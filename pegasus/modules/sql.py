@@ -150,7 +150,7 @@ class sql:
         results_format = [{
             'results': [],
             'columns': ['command', 'description']
-        }, f"\nUse 'sql copy' or 'sql view' for additional options.\nVisit /sqlsetup to modify the configuration"]
+        }, f"\nUse 'sql copy' or 'sql view' for additional options."]
 
         sections = [self.commands, self.queries]
         for section in sections:
