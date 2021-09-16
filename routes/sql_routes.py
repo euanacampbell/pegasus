@@ -91,7 +91,7 @@ def deletecommand(command):
 @sql_routes.route('/sql-api/updatecommand', methods=['GET', 'POST'])
 def updatecommand():
 
-    enabled_queries = [i for i in request.values]
+    enabled_queries = [i for i in request.values if i != 'commandName']
     command_name = request.form.get('commandName', 0)
 
     sql_config().update_command(command_name, enabled_queries)
@@ -148,4 +148,9 @@ def updateconn():
 
     sql_config().update_conn(conn_name, conn_setup)
 
-    return redirect(url_for('sql_routes.sql_setup'))
+    alert = {
+        'type': 'success',
+        'message': 'settings updated'
+    }
+
+    return redirect(url_for('sql_routes.sql_setup', setting_type='settings', message=alert))
