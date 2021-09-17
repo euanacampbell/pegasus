@@ -19,26 +19,31 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   </head>
   
-    <body>
+    <body style="font-family: 'Nunito', sans-serif; background: #F6F8F9">
 
       <!-- Guest code box -->
       <div class="container code-box">
         <form class="d-flex" name="Form1" onsubmit="get_action(this);" style="padding: 10px; margin-bottom: 15px; margin-top: 15px;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
           <!-- <input id="code" class="form-control me-2" type="search" placeholder="code" aria-label="Search"> -->
-          <div class="input-group shadow p-2 bg-white rounded">
-            <div class="input-group-prepend">
+          <div class="input-group">
+            <div class="input-group-prepend shadow-sm bg-white rounded">
               <div class="input-group-text">></div>
             </div>
-            <input list="cars" name="input" type="text" class="form-control" id="input" placeholder="help" type="search" value="{{ info['command'] }}" autofocus>
+            <input list="cars" name="input" type="text" class="form-control shadow-sm bg-white rounded" id="input" placeholder="help" type="search" value="{{ info['command'] }}" autofocus>
             <datalist id="cars">
               {% for command in info['available_commands'] %}
                 <option>{{ command }}</option>
               {% endfor %}
             </datalist>
-            <button class="btn btn-outline-success" type="submit">Go</button>
+            <button class="btn btn-outline-success shadow-sm bg-white rounded" type="submit">Go</button>
           </div>
           
         </form>
+        {% if info %}
+          {% if 'sql' in info['command'] %}
+          <div class="container"><a href="/sqlsetup" class="btn btn-primary">SQL Setup</a></div>
+          {% endif %}
+        {% endif %}
 
         <!-- <div name="results" style="border: 1px; border-style: solid; border-radius: 5px; border-color: darkgray;padding: 5px;"> -->
         <div>
@@ -61,7 +66,7 @@
 
             <!-- DICTOFLIST-->
             {% elif item['type']=='dictoflist' %}
-              <table class="table table-hover table-bordered align-middle shadow p-3 mb-5 bg-white rounded">
+              <table class="table table-hover table-bordered align-middle shadow p-3 bg-white rounded">
                 <thead>
                   <tr>
                 {% for row in item['content']['columns'] %}
@@ -82,7 +87,7 @@
             
             <!-- LIST OF LISTS -->
             {% elif item['type']=='listoflist' %}
-              <table class="table align-middle shadow p-3 mb-5 bg-white rounded">
+              <table class="table align-middle shadow p-3 bg-white rounded">
                 <tbody>
                 {% for row in item['content'] %}
                     <tr>
@@ -118,11 +123,14 @@
 
   </body>
 
-  <footer>
-    {% if info %}
-      {% if 'sql' in info['command'] %}
-      <div class="container"><a href="/sqlsetup" class="btn btn-primary">SQL Setup</a></div>
-      {% endif %}
-    {% endif %}
-  </footer>
+
+  <footer class="my-5 pt-5 text-muted text-center text-small">
+      <p class="mb-1">Pegasus</p>
+      <ul class="list-inline">
+        <li class="list-inline-item"><a href="https://github.com/euanacampbell/pegasus" target="_blank">GitHub</a></li>
+        <li class="list-inline-item">•</li>
+        <li class="list-inline-item"><a href="https://info.euan.app" target="_blank">Euan</a></li>
+      </ul>
+    </footer>
+    
 </html>

@@ -28,7 +28,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   </head>
   
-    <body style="font-family: 'Nunito', sans-serif;">
+    <body style="font-family: 'Nunito', sans-serif; background: #F6F8F9">
       {% if message['type']=='success' %}
       <div class="alert alert-success" role="alert">
         {{ message['message'] }}
@@ -43,18 +43,18 @@
 
         <a href="/" class="btn btn-secondary" style="margin-top: 10px; margin-bottom: 10px;"><i class="fa fa-home" aria-hidden="true"></i></a>
         
-        <ul class="nav nav-tabs" style="margin-bottom: 10px; margin-top: 10px;">
+        <ul class="nav nav-tabs" style="margin-bottom: 10px; margin-top: 10px; background: #F6F8F9">
           <li class="nav-item">
-            <a class="nav-link {% if setting_type=='queries' %}active{% endif %}" href="/sqlsetup/queries">Queries</a>
+            <a class="nav-link {% if setting_type=='queries' %}active{% endif %} background: #F6F8F9" href="/sqlsetup/queries">Queries</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% if setting_type=='commands' %}active{% endif %}" href="/sqlsetup/commands">Commands</a>
+            <a class="nav-link {% if setting_type=='commands' %}active{% endif %} background: #F6F8F9" href="/sqlsetup/commands">Commands</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% if setting_type=='connections' %}active{% endif %}" href="/sqlsetup/connections">Connections</a>
+            <a class="nav-link {% if setting_type=='connections' %}active{% endif %} background: #F6F8F9" href="/sqlsetup/connections">Connections</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% if setting_type=='settings' %}active{% endif %}" href="/sqlsetup/settings">Settings</a>
+            <a class="nav-link {% if setting_type=='settings' %}active{% endif %} background: #F6F8F9" href="/sqlsetup/settings">Settings</a>
           </li>
         </ul>
 
@@ -133,7 +133,7 @@
               {% for query in config['queries'] %}
                 <tr> <!--TABLE ROW-->
                 <td>{{ query }}</td>
-                <td>{{ config['queries'][query]['label'] }}</td>
+                <td>#{{ config['queries'][query]['label'] }}</td>
                 <td>{{ config['queries'][query]['connection'] }}</td>
                 <td><textarea name="query" class="form-control" id="exampleFormControlTextarea1" style="overflow: auto; margin-bottom: 5px; font-family: 'IBM Plex Mono', monospace;" rows="1">{{ config['queries'][query]['query'] }}</textarea></td>
                 <td><button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#edit{{ query }}Modal"><i class="fa fa-edit"></i></button></td>
@@ -164,7 +164,7 @@
               <div class="card-body">
                 
                 <input name="commandName"  value="{{ command }}" style="margin: 0px; padding: 0px;" type="text" class="form-control invisible" id="commandName" placeholder="command name" hidden>
-
+                <h5>Queries:</h5>
                 {% for query in config['queries'] %}
                 <div class="form-check">
                   <input name="{{query}}" class="form-check-input" type="checkbox" value="{{query}}" id="{{query}}" {% if query in config['commands'][command]['queries'] %}checked{% endif %}>
