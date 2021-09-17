@@ -56,9 +56,7 @@ class sql:
             return command_dispatch[sql_command](sql_param)
 
         # runs either command or individual query
-        if sql_command in self.commands:
-            return self.run_command(sql_command, sql_param)
-        if sql_command in self.queries:
+        if sql_command in self.commands or sql_command in self.queries:
             return self.run_command(sql_command, sql_param)
         else:
             raise ValueError(f'Command not recognised: {sql_command}')
@@ -75,6 +73,7 @@ class sql:
         for query in queries:
 
             query_details = self.queries[query]
+            all_results.append(query)
 
             if query_details['connection'] not in self.connections:
                 all_results.append(f'ERROR: Invalid connection for {query}')
@@ -112,7 +111,7 @@ class sql:
 
         queries = []
 
-        if command not in self.commands and command not in self.combined_commands:
+        if command not in self.commands and command not in self.queries:
             raise Exception(
                 f"Command '{command}' not recognised.")
 
@@ -120,9 +119,9 @@ class sql:
             for query in self.commands[command]['queries']:
                 queries.append(self.format_sql(query.replace('&p', "''")))
 
-        if command in self.combined_commands:
+        if command in self.queries:
             sub_commands = [
-                query for query in self.combined_commands[command]['commands']]
+                query for query in self.queries[command]['query']]
             for comm in sub_commands:
                 queries.append(comm)
                 for comm in self.commands[comm]['queries']:
@@ -269,13 +268,14 @@ class sql_config:
 
         self.update_config(doc)
 
-    def new_query(self, query_command, connection, query):
+    def new_query(self, query_command, connection, query, label):
 
         config = self.load_config()
 
         config['queries'][query_command] = {
             'query': query,
-            'connection': connection
+            'connection': connection,
+            'label': label
         }
 
         self.update_config(config)

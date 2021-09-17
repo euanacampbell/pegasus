@@ -11,6 +11,12 @@
 
     <title>Pegasus - SQL Config</title>
 
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@100;200&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
@@ -22,7 +28,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   </head>
   
-    <body>
+    <body style="font-family: 'Nunito', sans-serif;">
       {% if message['type']=='success' %}
       <div class="alert alert-success" role="alert">
         {{ message['message'] }}
@@ -37,9 +43,6 @@
 
         <a href="/" class="btn btn-secondary" style="margin-top: 10px; margin-bottom: 10px;"><i class="fa fa-home" aria-hidden="true"></i></a>
         
-
-
-
         <ul class="nav nav-tabs" style="margin-bottom: 10px; margin-top: 10px;">
           <li class="nav-item">
             <a class="nav-link {% if setting_type=='queries' %}active{% endif %}" href="/sqlsetup/queries">Queries</a>
@@ -66,7 +69,7 @@
         <div class="row">
         
         <div class="col-md-12">
-          <table class="table table-bordered" style="margin: 5px;">
+          <table class="table table-bordered shadow p-3 mb-5 bg-white rounded" style="margin: 5px;">
             <thead>
               <tr>
                 <th scope="col">name</th>
@@ -98,7 +101,7 @@
                 <td><input name="database" value="{{ config['connections'][conn]['database'] }}" type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3"></td>
                 <td><input name="username" value="{{ config['connections'][conn]['username'] }}" type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3"></td>
                 <td><input name="password" value="{{ config['connections'][conn]['password'] }}" type="password" class="form-control" id="basic-url" aria-describedby="basic-addon3"></td>
-                <td><button type="submit" class="btn btn-primary"><i class="fa fa-save"></i></button></td>
+                <td><button type="submit" class="btn btn-secondary"><i class="fa fa-save"></i></button></td>
                 <td><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{conn}}Modal"><i class="fa fa-trash-o"></i></button></td>
               </tr><!--TABLE ROW-->
               </form>
@@ -114,43 +117,30 @@
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newQueryModal">
           Add 
         </button>
-        
-        <div class="row">
-        {% for query in config['queries'] %}
-        
-        <div class="col-sm-12, col-md-6, col-lg-6">
-          <form name="{{query}}Form" action="/sql-api/updatequery" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-            <div class="card" style="width: 100%; margin: 5px;">
-              <div class="card-header">
-                <h5>{{ query }}</h5> 
-              </div>
-              <div class="card-body">
-                  <input name="connName"  value="{{ query }}" style="margin: 0px; padding: 0px;" type="text" class="form-control invisible" id="connName" placeholder="connection name" hidden>
 
-                  <div class="input-group mb-3">
-                  <div class="input-group-prepend">
-                    <label class="input-group-text" for="connection">connection</label>
-                  </div>
-                  <select value="d" name="connection" id="connection" class="custom-select">
-                    {% for conn in config['connections'] %}
-                    <option {% if config['queries'][query]['connection']==conn %} selected="selected"{% endif %} value="{{conn}}">{{conn}}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-                <textarea name="query" class="form-control" id="exampleFormControlTextarea1" style='overflow: auto; margin-bottom: 5px;' rows="{{ config['queries'][query]['query'].split('\n') | length }}">{{ config['queries'][query]['query'] }}</textarea>
-
-              </div>
-              <div class="card-footer">
-                <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i></button>
-                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{query}}Modal"><i class="fa fa-trash-o"></i></button> 
-              </div>
-            </div>
-          </form>
-        </div>
-          
-        
-        {% endfor %}
-        </div>
+        <table class="table table-bordered shadow p-3 mb-5 bg-white rounded" style="margin: 5px;">
+            <thead>
+              <tr>
+                <th scope="col">name</th>
+                <th scope="col">label</th>
+                <th scope="col">connection</th>
+                <th scope="col">query</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for query in config['queries'] %}
+                <tr> <!--TABLE ROW-->
+                <td>{{ query }}</td>
+                <td>{{ config['queries'][query]['label'] }}</td>
+                <td>{{ config['queries'][query]['connection'] }}</td>
+                <td><textarea name="query" class="form-control" id="exampleFormControlTextarea1" style="overflow: auto; margin-bottom: 5px; font-family: 'IBM Plex Mono', monospace;" rows="1">{{ config['queries'][query]['query'] }}</textarea></td>
+                <td><button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#edit{{ query }}Modal"><i class="fa fa-edit"></i></button></td>
+                <td><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{query}}Modal"><i class="fa fa-trash-o"></i></button></td>
+              </tr><!--TABLE ROW-->
+              {% endfor %}
+          </table>
         <!-- END OF QUERIES -->
         {% endif %}
 
@@ -167,7 +157,7 @@
         <div class="col-sm-6, col-md-4, col-lg-4">
           <form name="update_command_form" id="update_command_form" method="POST" action="/sql-api/updatecommand" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
           
-            <div class="card" style="width: 100%; margin: 5px;">
+            <div class="card shadow mb-5 bg-white rounded" style="width: 100%; margin: 5px;">
               <div class="card-header">
                 <h5>{{ command }}</h5> 
               </div>
@@ -185,7 +175,7 @@
                 
               </div>
               <div class="card-footer">
-                  <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i></button>
+                  <button type="submit" class="btn btn-secondary"><i class="fa fa-save"></i></button>
                   <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{command}}Modal"><i class="fa fa-trash-o"></i></button>
               </div>
             </div>
@@ -203,7 +193,7 @@
 
         {% if setting_type=='settings' %} 
         <!-- SETTINGS -->
-        <form name="settingsForm" action="/sql-api/updatesettings" style="padding: 10px; margin-bottom: 15px; margin-top: 15px;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <form name="settingsForm" class="shadow p-3 mb-5 bg-white rounded" action="/sql-api/updatesettings" style="padding: 10px; margin-bottom: 15px; margin-top: 15px;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
           <div class="form-check">
             <input name="auto_format_queries" class="form-check-input" type="checkbox" value="" id="auto_format_queries_check" {% if config['auto_format_queries']==True %}checked{% endif %}>
             <label class="form-check-label" for="auto_format_queries_check">
@@ -216,7 +206,7 @@
               better_tables
             </label>
           </div>
-          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="submit" class="btn btn-secondary">Save</button>
         </form>
         <!-- END OF SETTINGS -->
         {% endif %}
@@ -240,19 +230,31 @@
             </button>
           </div>
           <div class="modal-body">
-            <form name="new_query_form" id="new_query_form" method="POST" action="/sql-api/newquery" style="padding: 10px; margin-bottom: 15px; margin-top: 15px;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-              <input name="queryName" style="margin: 2px;" type="text" class="form-control" id="connName" placeholder="query name"> 
+            <form name="new_query_form" id="new_query_form" method="POST" action="/sql-api/newquery" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+              <div class="input-group mb-2">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">query name</div>
+                  </div>
+                  <input name="queryName" onkeypress="return event.charCode != 32" placeholder="system_search" type="text" class="form-control" id="inlineFormInputGroup">
+                </div>
               <div class="input-group mb-3">
                   <div class="input-group-prepend">
                     <label class="input-group-text" for="inputGroupSelect01">connection</label>
                   </div>
                   <select value="d" name="connection" id="connection" class="custom-select" id="inputGroupSelect01">
+                    <option>Choose one...</option>
                     {% for conn in config['connections'] %}
                     <option value="{{conn}}">{{conn}}</option>
                     {% endfor %}
                   </select>
                 </div>
-                <textarea name="query" class="form-control" id="exampleFormControlTextarea1" style='overflow: auto; margin-bottom: 5px;' rows=5></textarea>
+                <div class="input-group mb-2">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">label</div>
+                  </div>
+                  <input name="label" placeholder="system_name" type="text" class="form-control" id="inlineFormInputGroup">
+                </div>
+                <textarea style="overflow: auto; margin-bottom: 5px; font-family: 'IBM Plex Mono', monospace;" name="query" placeholder="SELECT id, value &#10;FROM this_table&#10;WHERE value > 10 ORDER BY value DESC" class="form-control" id="exampleFormControlTextarea1" style='overflow: auto; margin-bottom: 5px;' rows=5></textarea>
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-success">add</button>
@@ -262,6 +264,48 @@
         </div>
       </div>
     </div>
+
+    <!-- edit query -->
+    {% for query in config['queries'] %}
+    <div class="modal fade" id="edit{{ query }}Modal" tabindex="-1" role="dialog" aria-labelledby="edit{{ query }}ModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="edit{{ query }}ModalLabel">Edit {{ query }}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form name="edit_query_form" id="edit_query_form" method="POST" action="/sql-api/updatequery" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+              <input value="{{ query }}" onkeypress="return event.charCode != 32" name="queryName" type="text" class="form-control mb-3" id="connName" placeholder="query name" hidden> 
+              <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                  <div class="input-group-text">label</div>
+                </div>
+                <input value="{{ config['queries'][query]['label'] }}" name="label" type="text" class="form-control" id="inlineFormInputGroup">
+              </div>
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <label class="input-group-text" for="inputGroupSelect01">connection</label>
+                </div>
+                <select value="d" name="connection" id="connection" class="custom-select" id="inputGroupSelect01">
+                  {% for conn in config['connections'] %}
+                  <option value="{{conn}}" {% if conn==config['queries'][query]['connection'] %} selected="selected"{% endif %}>{{conn}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <td><textarea name="query" class="form-control" id="exampleFormControlTextarea1" style="overflow: auto; margin-bottom: 5px; font-family: 'IBM Plex Mono', monospace;" rows="{{ config['queries'][query]['query'].split('\n')|length }}">{{ config['queries'][query]['query'] }}</textarea></td>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">save</button>
+              </form>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
 
     <!-- delete query -->
     {% for query in config['queries'] %}
@@ -340,8 +384,8 @@
             </button>
           </div>
           <div class="modal-body">
-            <form name="new_conn_form" id="new_conn_form" method="POST" action="/sql-api/updateconn" style="padding: 10px; margin-bottom: 15px; margin-top: 15px;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-              <input name="connName" style="margin: 2px;" type="text" class="form-control" id="connName" placeholder="connection name">
+            <form name="new_conn_form" id="new_conn_form" method="POST" action="/sql-api/updateconn" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+              <input name="connName" onkeypress="return event.charCode != 32" type="text" class="form-control mb-3" id="connName" placeholder="connection name">
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <label class="input-group-text" for="inputGroupSelect01">Type</label>
@@ -353,10 +397,10 @@
                   <option value="azure">Azure Server</option>
                 </select>
               </div>
-              <input name="server" style="margin: 2px;" type="text" class="form-control" id="server" placeholder="server">
-              <input name="database" style="margin: 2px;" type="text" class="form-control" id="database" placeholder="database">
-              <input name="username" style="margin: 2px;" type="text" class="form-control" id="username" placeholder="username (optional)">
-              <input name="password" style="margin: 2px;" type="password" class="form-control" id="password" placeholder="password (optional)">
+              <input name="server" type="text" class="form-control mb-3" id="server" placeholder="server">
+              <input name="database" type="text" class="form-control mb-3" id="database" placeholder="database">
+              <input name="username" type="text" class="form-control mb-3" id="username" placeholder="username (optional)">
+              <input name="password" type="password" class="form-control mb-3" id="password" placeholder="password (optional)">
             
           </div>
           <div class="modal-footer">
@@ -379,11 +423,11 @@
             </button>
           </div>
           <div class="modal-body">
-            <form name="new_command_form" id="new_command_form" method="POST" action="/sql-api/updatecommand" style="padding: 10px; margin-bottom: 15px; margin-top: 15px;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-              <input name="commandName" style="margin: 2px;" type="text" class="form-control" id="commandName" placeholder="command name"> 
+            <form name="new_command_form" id="new_command_form" method="POST" action="/sql-api/updatecommand" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+              <input name="commandName" onkeypress="return event.charCode != 32" type="text" class="form-control mb-3" id="commandName" placeholder="command name"> 
               {% for query in config['queries'] %}
                 <div class="form-check">
-                  <input name="{{query}}" class="form-check-input" type="checkbox" value="{{query}}" id="{{query}}">
+                  <input name="{{query}}" class="form-check-input mb-3" type="checkbox" value="{{query}}" id="{{query}}">
                   <label class="form-check-label" for="auto_format_queries_check">{{ query }}</label>
                 </div>
                 {% endfor %}

@@ -25,7 +25,7 @@
       <div class="container code-box">
         <form class="d-flex" name="Form1" onsubmit="get_action(this);" style="padding: 10px; margin-bottom: 15px; margin-top: 15px;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
           <!-- <input id="code" class="form-control me-2" type="search" placeholder="code" aria-label="Search"> -->
-          <div class="input-group">
+          <div class="input-group shadow p-2 bg-white rounded">
             <div class="input-group-prepend">
               <div class="input-group-text">></div>
             </div>
@@ -35,8 +35,9 @@
                 <option>{{ command }}</option>
               {% endfor %}
             </datalist>
+            <button class="btn btn-outline-success" type="submit">Go</button>
           </div>
-          <button class="btn btn-outline-success" type="submit">Go</button>
+          
         </form>
 
         <!-- <div name="results" style="border: 1px; border-style: solid; border-radius: 5px; border-color: darkgray;padding: 5px;"> -->
@@ -60,7 +61,7 @@
 
             <!-- DICTOFLIST-->
             {% elif item['type']=='dictoflist' %}
-              <table class="table table-hover table-bordered align-middle">
+              <table class="table table-hover table-bordered align-middle shadow p-3 mb-5 bg-white rounded">
                 <thead>
                   <tr>
                 {% for row in item['content']['columns'] %}
@@ -81,7 +82,7 @@
             
             <!-- LIST OF LISTS -->
             {% elif item['type']=='listoflist' %}
-              <table class="table align-middle">
+              <table class="table align-middle shadow p-3 mb-5 bg-white rounded">
                 <tbody>
                 {% for row in item['content'] %}
                     <tr>

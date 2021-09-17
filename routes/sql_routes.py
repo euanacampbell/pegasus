@@ -27,10 +27,10 @@ def sql_setup(setting_type, alert=None):
 @sql_routes.route('/sql-api/newquery', methods=['GET', 'POST'])
 def newquery():
 
-    query_name = request.form.get('queryName', 0)
+    query_name = str(request.form.get('queryName', 0))
 
     sql_config().new_query(query_name, request.form.get(
-        'connection', 0), request.form.get('query', 0))
+        'connection', 0), request.form.get('query', 0), request.form.get('label', 0))
 
     alert = {
         'type': 'success',
@@ -43,14 +43,20 @@ def newquery():
 @sql_routes.route('/sql-api/updatequery', methods=['GET', 'POST'])
 def updatequery():
 
-    query_name = request.args.get("connName", 0)
-    query = request.args.get('query', 0)
-    connection = request.args.get('connection', 0)
+    query_name = str(request.form.get("queryName", 0))
+    query = request.form.get('query', 0)
+    connection = request.form.get('connection', 0)
+    label = request.form.get('label', 0)
+
+    print(query_name)
+    print(query)
+    print(connection)
+    print(label)
 
     query = query.replace("\r", " ")
     query = query.replace("\n", " ")
 
-    sql_config().new_query(query_name, connection, query)
+    sql_config().new_query(query_name, connection, query, label)
 
     alert = {
         'type': 'success',
@@ -92,7 +98,7 @@ def deletecommand(command):
 def updatecommand():
 
     enabled_queries = [i for i in request.values if i != 'commandName']
-    command_name = request.form.get('commandName', 0)
+    command_name = str(request.form.get('commandName', 0))
 
     sql_config().update_command(command_name, enabled_queries)
 
@@ -135,7 +141,7 @@ def deleteconn(conn):
 
 @sql_routes.route('/sql-api/updateconn', methods=['GET', 'POST'])
 def updateconn():
-    conn_name = request.form.get('connName', 0)
+    conn_name = str(request.form.get('connName', 0))
 
     conn_setup = {
         'type': request.form.get('type', 0),
