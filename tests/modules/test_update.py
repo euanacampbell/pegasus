@@ -1,5 +1,5 @@
-from modules.update import update
-from modules.generic.clipboard import Clipboard
+from pegasus.modules.update import update
+from pegasus.modules.generic.clipboard import Clipboard
 import re
 
 

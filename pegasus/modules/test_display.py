@@ -1,9 +1,3 @@
-import sqlparse
-import json
-import xml.dom.minidom
-
-from pegasus.modules.generic.clipboard import Clipboard
-
 
 class test_display:
     'Test different display types'
@@ -13,22 +7,26 @@ class test_display:
 
     def __run__(self, params=None):
 
-        format_type = params[0]
-
         format_dispatch = {
             'string': 'testing strings',
             'stringinlist': ['testing strings'],
             'int': 42,
             'intinlist': [42],
-            'los': ['hello', 'my', 'name', 'is', 'test'],
-            'loi': [14, 19, 41, 1242, 0],
-            'lol': [['hello', 'my', 'name', 'is', 'test'], ['hello', 'my', 'name', 'is', 'test'], ['hello', 'my', 'name', 'is', 'test'], ['hello', 'my', 'name', 'is', 'test'], ['hello', 'my', 'name', 'is', 'test']],
-            'lod': [{'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}],
+            'list_of_strings': ['hello', 'my', 'name', 'is', 'test'],
+            'list_of_ints': [14, 19, 41, 1242, 0],
+            'list_of_lists': [['hello', 'my', 'name', 'is', 'test'], ['hello', 'my', 'name', 'is', 'test'], ['hello', 'my', 'name', 'is', 'test'], ['hello', 'my', 'name', 'is', 'test'], ['hello', 'my', 'name', 'is', 'test']],
+            'list_of_dicts': [{'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}],
             'tablelist': 'test'
 
         }
 
-        return format_dispatch[format_type]
+        return_all = []
+
+        for format_type in format_dispatch:
+            return_all.append(f"%bold%{format_type}")
+            return_all.append(format_dispatch[format_type])
+
+        return return_all
 
 
 """

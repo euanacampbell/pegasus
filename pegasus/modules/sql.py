@@ -70,25 +70,36 @@ class sql:
             queries = [command]
 
         all_results = []
-        for query in queries:
 
-            query_details = self.queries[query]
-            all_results.append(query)
+        connections = set([self.queries[query]['connection']
+                           for query in queries])
 
-            if query_details['connection'] not in self.connections:
-                all_results.append(f'ERROR: Invalid connection for {query}')
-                continue
-            else:
-                connection_details = self.connections[query_details['connection']]
+        for conn in connections:
+            if len(connections) > 1:
+                all_results.append(f"%bold%{conn}")
+            for query in queries:
 
-            results = SQL_Conn().run_query(connection_details,
-                                           query_details['query'], param)
+                if self.queries[query]['connection'] == conn:
 
-            query_results = {
-                'results': results['results'],
-                'columns': results['columns']
-            }
-            all_results.append(query_results)
+                    query_details = self.queries[query]
+                    if len(queries) > 1:
+                        all_results.append(query)
+
+                    if query_details['connection'] not in self.connections:
+                        all_results.append(
+                            f'ERROR: Invalid connection for {query}')
+                        continue
+                    else:
+                        connection_details = self.connections[query_details['connection']]
+
+                    results = SQL_Conn().run_query(connection_details,
+                                                   query_details['query'], param)
+
+                    query_results = {
+                        'results': results['results'],
+                        'columns': results['columns']
+                    }
+                    all_results.append(query_results)
 
         return all_results
 
@@ -146,22 +157,10 @@ class sql:
 
     def help(self, command):
 
-        results_format = [{
-            'results': [],
-            'columns': ['command', 'description']
-        }, f"\nUse 'sql copy' or 'sql view' for additional options."]
+        commands = [command for command in self.commands]
+        queries = [query for query in self.queries]
 
-        sections = [self.commands, self.queries]
-        for section in sections:
-            for command in section:
-                try:
-                    desc = section[command]['description']
-                except:
-                    desc = ''
-
-                results_format[0]['results'].append([command, desc])
-
-        return results_format
+        return ['commands', commands, 'queries', queries]
 
 
 class SQL_Conn:
@@ -268,14 +267,13 @@ class sql_config:
 
         self.update_config(doc)
 
-    def new_query(self, query_command, connection, query, label):
+    def new_query(self, query_command, connection, query):
 
         config = self.load_config()
 
         config['queries'][query_command] = {
             'query': query,
-            'connection': connection,
-            'label': label
+            'connection': connection
         }
 
         self.update_config(config)
@@ -285,6 +283,10 @@ class sql_config:
         config = self.load_config()
 
         del config['queries'][query]
+
+        for command in config['commands']:
+            if query in config['commands'][command]['queries']:
+                config['commands'][command]['queries'].remove(query)
 
         self.update_config(config)
 

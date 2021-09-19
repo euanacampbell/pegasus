@@ -1,26 +1,30 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from pegasus.modules.sql import sql_config
 from pegasus.modules.format import format
 
 sql_routes = Blueprint('sql_routes', __name__)
 
 
-@sql_routes.route('/sqlsetup')
-def sql_default():
-
-    return redirect(url_for('sql_routes.sql_setup', setting_type='queries'))
-
-
-@sql_routes.route('/sqlsetup/<setting_type>')
-def sql_setup(setting_type, alert=None):
-
+def setup_config():
     config = sql_config().load_config()
 
     for query in config['queries']:
         config['queries'][query]['query'] = format().format_sql(
             config['queries'][query]['query'])
 
-    return render_template('sql_config.html', config=config, message=alert, setting_type=setting_type)
+    return config
+
+
+@sql_routes.route('/sqlsetup')
+def sql_default():
+
+    return redirect(url_for('sql_routes.sql_setup', setting_type='queries', message=None))
+
+
+@sql_routes.route('/sqlsetup/<setting_type>')
+def sql_setup(setting_type):
+
+    return render_template('sql/sql_config.html', config=setup_config(), setting_type=setting_type, message=None)
 
 
 # QUERY
@@ -30,14 +34,11 @@ def newquery():
     query_name = str(request.form.get('queryName', 0))
 
     sql_config().new_query(query_name, request.form.get(
-        'connection', 0), request.form.get('query', 0), request.form.get('label', 0))
+        'connection', 0), request.form.get('query', 0))
 
-    alert = {
-        'type': 'success',
-        'message': 'new query added'
-    }
+    flash('New query added.')
 
-    return redirect(url_for('sql_routes.sql_setup', setting_type='queries', message=alert))
+    return redirect(url_for('sql_routes.sql_setup', setting_type='queries'))
 
 
 @sql_routes.route('/sql-api/updatequery', methods=['GET', 'POST'])
@@ -46,24 +47,15 @@ def updatequery():
     query_name = str(request.form.get("queryName", 0))
     query = request.form.get('query', 0)
     connection = request.form.get('connection', 0)
-    label = request.form.get('label', 0)
-
-    print(query_name)
-    print(query)
-    print(connection)
-    print(label)
 
     query = query.replace("\r", " ")
     query = query.replace("\n", " ")
 
-    sql_config().new_query(query_name, connection, query, label)
+    sql_config().new_query(query_name, connection, query)
 
-    alert = {
-        'type': 'success',
-        'message': 'query updated'
-    }
+    flash('Query updated.')
 
-    return redirect(url_for('sql_routes.sql_setup', setting_type='queries', message=alert))
+    return redirect(url_for('sql_routes.sql_setup', setting_type='queries'))
 
 
 @sql_routes.route('/sql-api/deletequery/<query>', methods=['GET', 'POST'])
@@ -71,12 +63,9 @@ def deletequery(query):
 
     sql_config().delete_query(query)
 
-    alert = {
-        'type': 'success',
-        'message': 'query deleted'
-    }
+    flash('Query deleted.')
 
-    return redirect(url_for('sql_routes.sql_setup', setting_type='queries', message=alert))
+    return redirect(url_for('sql_routes.sql_setup', setting_type='queries'))
 
 # COMMAND
 
@@ -86,12 +75,9 @@ def deletecommand(command):
 
     sql_config().delete_command(command)
 
-    alert = {
-        'type': 'success',
-        'message': 'command deleted'
-    }
+    flash('Command deleted.')
 
-    return redirect(url_for('sql_routes.sql_setup', setting_type='commands', message=alert))
+    return redirect(url_for('sql_routes.sql_setup', setting_type='commands'))
 
 
 @sql_routes.route('/sql-api/updatecommand', methods=['GET', 'POST'])
@@ -102,12 +88,9 @@ def updatecommand():
 
     sql_config().update_command(command_name, enabled_queries)
 
-    alert = {
-        'type': 'success',
-        'message': 'command updated'
-    }
+    flash('Command updated.')
 
-    return redirect(url_for('sql_routes.sql_setup', setting_type='commands', message=alert))
+    return redirect(url_for('sql_routes.sql_setup', setting_type='commands'))
 
 # SETTINGS
 
@@ -117,16 +100,11 @@ def updatesettings():
 
     enabled_settings = [i for i in request.values]
 
-    print(enabled_settings)
-
     sql_config().update_settings(enabled_settings)
 
-    alert = {
-        'type': 'success',
-        'message': 'settings updated'
-    }
+    flash('Settings updated.')
 
-    return redirect(url_for('sql_routes.sql_setup', setting_type='settings', message=alert))
+    return redirect(url_for('sql_routes.sql_setup', setting_type='settings'))
 
 # CONNECTION
 
@@ -136,7 +114,9 @@ def deleteconn(conn):
 
     sql_config().delete_conn(conn)
 
-    return redirect(url_for('sql_routes.sql_setup'))
+    flash('Connection deleted.')
+
+    return redirect(url_for('sql_routes.sql_setup', setting_type='settings'))
 
 
 @sql_routes.route('/sql-api/updateconn', methods=['GET', 'POST'])
@@ -154,9 +134,6 @@ def updateconn():
 
     sql_config().update_conn(conn_name, conn_setup)
 
-    alert = {
-        'type': 'success',
-        'message': 'settings updated'
-    }
+    flash('Connection updated.')
 
-    return redirect(url_for('sql_routes.sql_setup', setting_type='settings', message=alert))
+    return redirect(url_for('sql_routes.sql_setup', setting_type='settings'))

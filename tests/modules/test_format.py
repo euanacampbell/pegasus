@@ -1,5 +1,5 @@
-from modules.format import format
-from modules.generic.clipboard import Clipboard
+from pegasus.modules.format import format
+from pegasus.modules.generic.clipboard import Clipboard
 
 
 def test_json():

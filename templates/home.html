@@ -2,48 +2,17 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Default -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="assets/pegasus_icon.jpg">
+    {% include 'components/header.html' %}
 
-    <title>Pegasus</title>
-
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>    
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <!-- <meta http-equiv="refresh" content="5"> -->
   </head>
   
-    <body style="font-family: 'Nunito', sans-serif; background: #F6F8F9">
+    <body style="font-family: 'Nunito', sans-serif; background: #F6F8F9;">
 
       <!-- Guest code box -->
-      <div class="container code-box">
-        <form class="d-flex" name="Form1" onsubmit="get_action(this);" style="padding: 10px; margin-bottom: 15px; margin-top: 15px;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-          <!-- <input id="code" class="form-control me-2" type="search" placeholder="code" aria-label="Search"> -->
-          <div class="input-group">
-            <div class="input-group-prepend shadow-sm bg-white rounded">
-              <div class="input-group-text">></div>
-            </div>
-            <input list="cars" name="input" type="text" class="form-control shadow-sm bg-white rounded" id="input" placeholder="help" type="search" value="{{ info['command'] }}" autofocus>
-            <datalist id="cars">
-              {% for command in info['available_commands'] %}
-                <option>{{ command }}</option>
-              {% endfor %}
-            </datalist>
-            <button class="btn btn-outline-success shadow-sm bg-white rounded" type="submit">Go</button>
-          </div>
-          
-        </form>
-        {% if info %}
-          {% if 'sql' in info['command'] %}
-          <div class="container"><a href="/sqlsetup" class="btn btn-primary">SQL Setup</a></div>
-          {% endif %}
-        {% endif %}
+      <div class="container code-box" style="min-height: 70vh;">
+        
+        {% include 'components/search_bar.html' %}
 
         <!-- <div name="results" style="border: 1px; border-style: solid; border-radius: 5px; border-color: darkgray;padding: 5px;"> -->
         <div>
@@ -55,7 +24,12 @@
               {% if item['content'][0:6]=='SELECT' %}
                 <textarea class="form-control" id="exampleFormControlTextarea1" style='overflow: auto; margin-bottom: 5px;' rows="{{ item['content'].split('\n') | length }}">{{ item['content'] }}</textarea>
               {% else%}
-                <pre>{{ item['content'] }}</pre>
+                
+                {% if item['content'].startswith('%bold%') %}
+                  <pre><b>{{ item['content'].replace('%bold%', '') }}</b></pre>
+                {% else%}
+                  <pre>{{ item['content'] }}</pre>
+                {% endif %}
             {% endif %}
             
             <!-- ERROR -->
@@ -102,7 +76,7 @@
             <!-- LIST -->
             {% elif item['type']=='list' %}
               {% for row in item['content'] %}
-                <textarea class="form-control" id="exampleFormControlTextarea1" style='overflow: auto; margin-bottom: 5px;' rows="{{ row.split('\n') | length }}">{{ row }}</textarea>
+                <textarea class="form-control" id="exampleFormControlTextarea1" style='overflow: auto; margin-bottom: 5px;' rows="{{ (row|string).split('\n') | length }}">{{ row }}</textarea>
               {% endfor %}
             
             <!-- ELSE -->
@@ -110,27 +84,12 @@
                 <p1>not picked up: {{ item['type'] }}</p1>
             {% endif %}
             {% endfor %}
-
         </div>
       </div>
 
-
-    <script>
-      function get_action(form) {
-            form.action = '/command';
-          }  
-    </script>
-
+  <footer >
+      {% include 'components/footer.html' %}
+  </footer>
+  
   </body>
-
-
-  <footer class="my-5 pt-5 text-muted text-center text-small">
-      <p class="mb-1">Pegasus</p>
-      <ul class="list-inline">
-        <li class="list-inline-item"><a href="https://github.com/euanacampbell/pegasus" target="_blank">GitHub</a></li>
-        <li class="list-inline-item">•</li>
-        <li class="list-inline-item"><a href="https://info.euan.app" target="_blank">Euan</a></li>
-      </ul>
-    </footer>
-    
 </html>
