@@ -65,7 +65,8 @@ class sql:
         """Takes a given command/param and runs it"""
 
         if command in self.commands:
-            queries = self.commands[command]['queries'].sort()
+            queries = self.commands[command]['queries']
+            queries.sort()
         elif command in self.queries:
             queries = [command]
 
