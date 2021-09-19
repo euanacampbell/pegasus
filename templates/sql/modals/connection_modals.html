@@ -10,7 +10,7 @@
             </div>
             <div class="modal-body">
             <form name="new_conn_form" id="new_conn_form" method="POST" action="/sql-api/updateconn" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-                <input name="connName" onkeypress="return event.charCode != 32" type="text" class="form-control mb-3" id="connName" placeholder="connection name">
+                <input name="connName" onkeypress="return event.charCode != 32" type="text" class="form-control mb-3" id="connName" placeholder="connection name" required>
                 <div class="input-group mb-3">
                 <div class="input-group-prepend">
                     <label class="input-group-text" for="inputGroupSelect01">Type</label>
@@ -22,7 +22,7 @@
                     <option value="azure">Azure Server</option>
                 </select>
                 </div>
-                <input name="server" type="text" class="form-control mb-3" id="server" placeholder="server">
+                <input name="server" type="text" class="form-control mb-3" id="server" placeholder="server" required>
                 <input name="database" type="text" class="form-control mb-3" id="database" placeholder="database">
                 <input name="username" type="text" class="form-control mb-3" id="username" placeholder="username (optional)">
                 <input name="password" type="password" class="form-control mb-3" id="password" placeholder="password (optional)">

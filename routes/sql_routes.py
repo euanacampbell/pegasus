@@ -116,7 +116,7 @@ def deleteconn(conn):
 
     flash('Connection deleted.')
 
-    return redirect(url_for('sql_routes.sql_setup', setting_type='settings'))
+    return redirect(url_for('sql_routes.sql_setup', setting_type='connections'))
 
 
 @sql_routes.route('/sql-api/updateconn', methods=['GET', 'POST'])
@@ -136,4 +136,4 @@ def updateconn():
 
     flash('Connection updated.')
 
-    return redirect(url_for('sql_routes.sql_setup', setting_type='settings'))
+    return redirect(url_for('sql_routes.sql_setup', setting_type='connections'))

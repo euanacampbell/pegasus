@@ -14,20 +14,34 @@ pip3 install -r requirements.txt
 
 ## Usage
 
-Run the main.py file, this will load up the prompt.
+#### Web
+Run the pegasus_web.py file, this will start a flask server and allow you to access it through the displayed location (http://127.0.0.1:5000/) in a browser.
 
 ```bash
-python3 main.py
+python3 pegasus_web.py
+```
+
+
+#### Terminal
+Run the pegasus_terminal.py file, this will load up the terminal version of Pegasus.
+
+```bash
+python3 pegasus_terminal.py
 
 command: 
 ```
 
+#### SQL
+Use Pegasus to save and run queries more easily. Either navigate to /sqlsetup if using the web version, or manually modify the /configs/sql/yaml file.
+
+Create connections to your commonly used databases for MySQL, SQL Server and Azure DBs. Save your queries, then group them together with a command. Include parameters in your queries with %p.
+
 ## Default Commands
 
 - help (loads list of all available commands
-- jsonformat (formats a json model in your clipboard)
-- sqlformat (formats a SQL command in your clipboard)
-- listformat (formats a list into a SQL queryable list)
+- format (format json, sql, xml, and sql lists from your clipboard)
+- sql (save and run your common sql queries)
+- update (check and update to the latest version of Pegasus)
 
 ## Adding modules
 
@@ -38,7 +52,7 @@ Save this into the modules folder and import this at the top of the `main.py` fi
 class command_name:
     """command description"""
 
-    def __init__(self, config=None):
+    def __init__(self):
         self.config=config
 
     def __run__(self, param=None):
