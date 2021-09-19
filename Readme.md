@@ -1,3 +1,4 @@
+<a href="url"><img src="/static/img/pegasus_icon.png" align="left" height="48" width="48" ></a>
 # Pegasus
 
 A command line tool for automating various tasks.
