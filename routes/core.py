@@ -18,5 +18,5 @@ def command(command):
     if command == '':
         return redirect(url_for('home'))
 
-    command_result = pegasus.run_command(command + data)
+    command_result = pegasus.run_command(command + ' ' + data)
     return render_template('home.html', info=command_result)
