@@ -161,12 +161,17 @@
               <div class="card-body">
                 
                 <input name="commandName"  value="{{ command }}" style="margin: 0px; padding: 0px;" type="text" class="form-control invisible" id="commandName" placeholder="command name" hidden>
-                <h5>Queries:</h5>
-                {% for query in config['queries'] %}
-                <div class="form-check">
-                  <input name="{{query}}" class="form-check-input" type="checkbox" value="{{query}}" id="{{query}}" {% if query in config['commands'][command]['queries'] %}checked{% endif %}>
-                  <label class="form-check-label" for="auto_format_queries_check">{{ query }}</label>
-                </div>
+                <!-- <h5>Queries:</h5> -->
+                {% for conn in config['connections'] %}
+                  <p class="mt-1 mb-0">{{ conn }}:</p>
+                  {% for query in config['queries'] %}
+                    {% if config['queries'][query]['connection'] == conn %}
+                    <div class="form-check">
+                      <input name="{{query}}" class="form-check-input" type="checkbox" value="{{query}}" id="{{query}}" {% if query in config['commands'][command]['queries'] %}checked{% endif %}>
+                      <label class="form-check-label" for="auto_format_queries_check">{{ query }}</label>
+                    </div>
+                    {% endif %}
+                  {% endfor %}
                 {% endfor %}
 
                 
