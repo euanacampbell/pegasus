@@ -26,10 +26,17 @@ class format:
             raise Exception('format not recognised')
 
         c_board = Clipboard.get_clipboard()
+
+        return_values = []
         try:
             formatted = format_dispatch[format_type](c_board)
             Clipboard.add_to_clipboard(formatted)
-            return f'formatted {format_type}'
+            return_values.append(
+                f'Formatted {format_type} and added it to your clipboard.')
+
+            return_values.append('After')
+            return_values.append(formatted)
+            return return_values
         except:
             raise Exception(f'unable to format to {format_type}')
 
