@@ -183,8 +183,11 @@ class SQL_Conn:
         elif self.type == 'azure':
             username = conn['username']
             password = conn['password']
-            self.connection = pyodbc.connect(
-                f'DRIVER=SQL Server; SERVER={server}; DATABASE={database}; UID={username}; PWD={password}')
+            driver = '{ODBC Driver 17 for SQL Server}'
+            connection = f'DRIVER={driver};SERVER=tcp:{server};PORT=1433;DATABASE={database};UID={username};PWD={{' + \
+                password + '};Authentication=ActiveDirectoryPassword'
+            self.connection = pyodbc.connect(connection)
+            self.connection.add_output_converter(-155, str)
         else:
             raise Exception(f"type {self.type} not recognised")
 

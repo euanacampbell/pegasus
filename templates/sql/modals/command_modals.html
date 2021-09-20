@@ -61,7 +61,7 @@
             </button>
             </div>
             <div class="modal-body">
-            <form name="update_command_form" id="update_command_form" method="POST" action="/sql-api/updatecommand" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></form>
+            <form name="update_command_form" id="update_command_form" method="POST" action="/sql-api/updatecommand" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             <input name="commandName"  value="{{ command }}" style="margin: 0px; padding: 0px;" type="text" class="form-control invisible" id="commandName" placeholder="command name" hidden>
             <!-- <h5>Queries:</h5> -->
             {% for conn in config['connections'] %}
