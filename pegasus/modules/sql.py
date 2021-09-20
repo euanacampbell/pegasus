@@ -72,8 +72,11 @@ class sql:
 
         all_results = []
 
-        connections = set([self.queries[query]['connection']
-                           for query in queries])
+        all_connections = [self.queries[query]['connection'] for query in queries]
+
+        all_connections.sort()
+
+        connections = set(all_connections)
 
         for conn in connections:
             if len(connections) > 1:
