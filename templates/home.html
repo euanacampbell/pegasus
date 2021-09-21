@@ -7,9 +7,10 @@
     <!-- <meta http-equiv="refresh" content="5"> -->
   </head>
   
-    <body style="font-family: 'Nunito', sans-serif; background: #F6F8F9;">
+    <body style="font-family: 'Nunito', sans-serif; background: #F6F8F9; font-size: small;">
+      {% set border_types = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'dark'] %}
 
-      <div class="container code-box" style="min-height: 70vh;">
+      <div class="container code-box" style="min-height: 70vh; min-width: 70%;">
         
         {% include 'components/search_bar.html' %}
 
@@ -23,11 +24,19 @@
                 <textarea class="form-control" id="exampleFormControlTextarea1" style='overflow: auto; margin-bottom: 5px;' rows="{{ item['content'].split('\n') | length }}">{{ item['content'] }}</textarea>
               {% else%}
                 
-                {% if item['content'].startswith('%bold%') %}
-                  <pre><b>{{ item['content'].replace('%bold%', '') }}</b></pre>
-                {% else%}
-                  <pre>{{ item['content'] }}</pre>
-                {% endif %}
+              {% if item['content'].startswith('%bold%') %}
+                <pre><b>{{ item['content'].replace('%bold%', '') }}</b></pre>
+              {% elif item['content'].startswith('%header%') %}
+                <h4>{{ item['content'].replace('%header%', '') }}</h4>
+              {% elif item['content'] == '%start_border%' %}
+                <!-- <div class='border border-secondary rounded p-2 m-2'> -->
+                <div class='border border-{{ border_types | random }} rounded p-2 m-2'>
+                  
+              {% elif item['content'] == '%end_border%' %}
+                  </div>
+              {% else%}
+                <pre>{{ item['content'] }}</pre>
+              {% endif %}
             {% endif %}
             
             <!-- ERROR -->

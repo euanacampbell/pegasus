@@ -59,7 +59,7 @@ class Pegasus:
             command = sub_commands_lookup[command]
             module = globals()[command]()
         else:
-            return self.build_return(f"Error: '{command}' command not recognised, run 'help' to see available commands.", error='error')
+            return self.build_return(f"{command}' command not recognised, run 'help' to see available commands.", error='error')
 
         # catch any errors in the command/module
         # module_result = module.__run__(param)

@@ -99,6 +99,7 @@ def updatecommand():
 def updatesettings():
 
     enabled_settings = [i for i in request.values]
+    
 
     sql_config().update_settings(enabled_settings)
 

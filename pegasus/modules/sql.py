@@ -79,8 +79,10 @@ class sql:
         connections = set(all_connections)
 
         for conn in connections:
+
             if len(connections) > 1:
-                all_results.append(f"%bold%{conn}")
+                all_results.append(f"%start_border%")
+                all_results.append(f"%header%{conn}")
             for query in queries:
 
                 if self.queries[query]['connection'] == conn:
@@ -104,6 +106,7 @@ class sql:
                         'columns': results['columns']
                     }
                     all_results.append(query_results)
+            all_results.append(f"%end_border%")
 
         return all_results
 
