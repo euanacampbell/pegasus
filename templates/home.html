@@ -14,7 +14,7 @@
         
         {% include 'components/search_bar.html' %}
 
-        <div>
+        <!-- {% include 'components/command_grid.html' %} -->
 
           <!-- loop through content response -->
           {% for item in info['response'] %}
@@ -91,7 +91,6 @@
                 <p1>not picked up: {{ item['type'] }}</p1>
             {% endif %}
             {% endfor %}
-        </div>
       </div>
 
   <footer >

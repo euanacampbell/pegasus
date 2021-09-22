@@ -3,7 +3,7 @@
         <div class="input-group-prepend shadow-sm bg-white rounded">
             <div class="input-group-text">></div>
         </div>
-        <input name="param" type="text" class="form-control shadow-sm bg-white rounded" id="command_input" placeholder="help" type="search" autofocus>
+        <input name="param" type="text" class="form-control shadow-sm bg-white rounded" id="command_input" {% if info is defined %} value="{{ info['command'] }} {{ info['param'] }}" {% else %}placeholder="help"{% endif %} type="search" autofocus>
         
         <button class="btn btn-success shadow-sm rounded" type="submit">Go</button>
         <div class="dropdown">

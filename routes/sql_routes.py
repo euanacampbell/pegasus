@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from pegasus.modules.sql import sql_config
+from pegasus.modules.sql import sql_config, SQL_Conn
 from pegasus.modules.format import format
 
 sql_routes = Blueprint('sql_routes', __name__)
@@ -13,6 +13,23 @@ def setup_config():
             config['queries'][query]['query'])
 
     return config
+
+
+@sql_routes.route('/sqlcreator', methods=['GET', 'POST'])
+def sql_creator():
+
+    connection = str(request.form.get('connection', 0))
+    query = str(request.form.get('query', 0))
+
+    if connection != '0':
+
+        connection_info = setup_config()['connections'][connection]
+        results = SQL_Conn().run_query(connection_info, query)
+        query_details = {'connection': connection, 'query': query}
+
+        return render_template('sql/sql_creator.html', config=setup_config(), response=results, query_info=query_details)
+    else:
+        return render_template('sql/sql_creator.html', config=setup_config(), response=None, query_info=None)
 
 
 @sql_routes.route('/sqlsetup')
@@ -99,7 +116,6 @@ def updatecommand():
 def updatesettings():
 
     enabled_settings = [i for i in request.values]
-    
 
     sql_config().update_settings(enabled_settings)
 
