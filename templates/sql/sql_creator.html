@@ -10,21 +10,11 @@
     <div class="container">
 
       <div class="row">
-      <div class="col-md-4">
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">Tables</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for table in response['tables'] %}
-            <tr>
-              <td>{{ table }}</td>
-            </tr>
+      <div class="col-md-4" style="font-size: small;">
+        <h4>Tables</h4>
+        {% for table in response['tables'] %}
+            <p>{{ table }}</p>
             {% endfor %}
-          </tbody>
-        </table>
       </div>
       <div class="col-md-8">
       <form name="sqlcreator_form" action="/sqlcreator" method="POST">

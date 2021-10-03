@@ -178,15 +178,18 @@ class SQL_Conn:
         server = conn['server']
         database = conn['database']
         if self.type == 'mysql':
+            self.get_tables = 'SHOW TABLES;'
             self.connection = pymysql.connect(host=conn['server'],
                                               user=conn['username'],
                                               password=conn['password'],
                                               database=conn['database'],
                                               cursorclass=pymysql.cursors.DictCursor)
         elif self.type == 'sqlserver':
+            self.get_tables = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'"
             self.connection = pyodbc.connect(
                 f'DRIVER=SQL Server; SERVER={server}; DATABASE={database};Trusted_Connection=yes;')
         elif self.type == 'azure':
+            self.get_tables = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'"
             username = conn['username']
             password = conn['password']
             driver = '{ODBC Driver 17 for SQL Server}'
@@ -241,6 +244,9 @@ class SQL_Conn:
                     results['results'] = new_content
 
                 results['columns'] = [i[0] for i in cursor.description]
+
+                # tables = cursor.execute(self.get_tables).fetchall()
+                # results['tables'] = [table[2] for table in tables if table[1]=='dbo']
 
             self.connection.commit()
 
