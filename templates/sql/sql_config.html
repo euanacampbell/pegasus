@@ -197,15 +197,22 @@
         <!-- SETTINGS -->
         <form name="settingsForm" class="shadow p-3 mb-5 bg-white rounded" action="/sql-api/updatesettings" style="padding: 10px; margin-bottom: 15px; margin-top: 15px;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
           <div class="form-check">
-            <input name="auto_format_queries" class="form-check-input" type="checkbox" value="" id="auto_format_queries_check" {% if config['auto_format_queries']==True %}checked{% endif %}>
+            <input name="auto_format_queries" class="form-check-input" type="checkbox" value="" id="auto_format_queries_check" {% if config['settings']['auto_format_queries']==True %}checked{% endif %}>
             <label class="form-check-label" for="auto_format_queries_check">
               auto_format_queries
             </label>
           </div>
           <div class="form-check">
-            <input name="better_tables" class="form-check-input" type="checkbox" value="" id="better_tables_check" {% if config['better_tables']==True %}checked{% endif %}>
+            <input name="better_tables" class="form-check-input" type="checkbox" value="" id="better_tables_check" {% if config['settings']['better_tables']==True %}checked{% endif %}>
             <label class="form-check-label" for="better_tables_check">
               better_tables
+            </label>
+          </div>
+          <small class="form-text text-muted">Indicates whether one or two columns should be used when displaying results.</small>
+          <div class="form-check">
+            <input name="two_columns" class="form-check-input" type="checkbox" value="" id=two_columnss_check" {% if config['settings']['two_columns']==True %}checked{% endif %}>
+            <label class="form-check-label" for="two_columns_check">
+              two_columns
             </label>
           </div>
           <small id="emailHelp" class="form-text text-muted">Only commands and queries can be loaded from the additional config, missing connections should be added.</small>

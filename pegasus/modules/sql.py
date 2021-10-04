@@ -83,12 +83,13 @@ class sql:
             if len(connections) > 1:
                 all_results.append(f"%start_border%")
                 all_results.append(f"%header%{conn}")
-                all_results.append(f"%start_row%")
+            all_results.append(f"%start_row%")
             for query in queries:
 
                 if self.queries[query]['connection'] == conn:
-
-                    all_results.append(f"%start_column%")
+                    
+                    if self.settings['two_columns']:
+                        all_results.append(f"%start_column%")
 
                     query_details = self.queries[query]
 
@@ -111,7 +112,8 @@ class sql:
                         'columns': results['columns']
                     }
                     all_results.append(query_results)
-                    all_results.append(f"%end_column%")
+                    if self.settings['two_columns']:
+                        all_results.append(f"%end_column%")
             all_results.append(f"%end_row%")
             all_results.append(f"%end_border%")
 
@@ -338,7 +340,7 @@ class sql_config:
 
         config['settings']['additional_config'] = additional_config
 
-        for item in config:
+        for item in config['settings']:
             if item not in skip:
                 if item in enabled_settings:
                     config['settings'][item] = True
