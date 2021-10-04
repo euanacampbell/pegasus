@@ -7,7 +7,7 @@ import os
 import sys
 from os import listdir
 from os.path import isfile, join
-import traceback
+import yaml
 from rich.traceback import install
 
 
@@ -69,7 +69,6 @@ class Pegasus:
             module_result = module.__run__(param)
             return self.build_return(module_result)
         except Exception as e:
-            print()
             return self.build_return(str(e), error='error')
 
     def help(self):
@@ -97,12 +96,12 @@ class Pegasus:
         sub_commands = {}
 
         for file in self.available_modules():
+            instance = globals()[file]()
 
             try:
-                instance = globals()[file]()
                 for command in instance.subcommands():
                     sub_commands[command] = file
-            except:
+            except AttributeError:
                 pass
 
         return sub_commands

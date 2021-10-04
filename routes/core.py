@@ -2,6 +2,7 @@ from pegasus.pegasus import Pegasus
 from flask import Blueprint, render_template, request, redirect, url_for
 core_routes = Blueprint('core_routes', __name__)
 
+
 pegasus = Pegasus()
 
 

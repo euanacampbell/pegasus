@@ -1,3 +1,4 @@
+from pegasus.pegasus import Pegasus
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from pegasus.modules.sql import sql_config, SQL_Conn
 from pegasus.modules.format import format
@@ -6,11 +7,26 @@ sql_routes = Blueprint('sql_routes', __name__)
 
 
 def setup_config():
-    config = sql_config().load_config()
 
+    config_local = sql_config().load_config()
+    config = sql_config().load_config(include_additional=True)
+
+    # reformat sql to be readable
     for query in config['queries']:
         config['queries'][query]['query'] = format().format_sql(
             config['queries'][query]['query'])
+
+        if query not in config_local['queries']:
+            config['queries'][query]['location'] = 'external'
+        else:
+            config['queries'][query]['location'] = 'local'
+
+    for command in config['commands']:
+
+        if command not in config_local['commands']:
+            config['commands'][command]['location'] = 'external'
+        else:
+            config['commands'][command]['location'] = 'local'
 
     return config
 
@@ -117,7 +133,9 @@ def updatesettings():
 
     enabled_settings = [i for i in request.values]
 
-    sql_config().update_settings(enabled_settings)
+    additional_config = request.values['additional_config']
+
+    sql_config().update_settings(enabled_settings, additional_config)
 
     flash('Settings updated.')
 

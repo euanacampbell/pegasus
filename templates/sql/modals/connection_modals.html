@@ -10,12 +10,12 @@
             </div>
             <div class="modal-body">
             <form name="new_conn_form" id="new_conn_form" method="POST" action="/sql-api/updateconn" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-                <input name="connName" onkeypress="return event.charCode != 32" type="text" class="form-control mb-3" id="connName" placeholder="connection name" required>
+                <input name="connName" onkeypress="return event.charCode != 32" type="text" class="form-control mb-3" placeholder="connection name" required>
                 <div class="input-group mb-3">
                 <div class="input-group-prepend">
                     <label class="input-group-text" for="inputGroupSelect01">Type</label>
                 </div>
-                <select name="type" id="type" class="custom-select" id="inputGroupSelect01">
+                <select name="type" id="type" class="custom-select">
                     <option selected>Choose...</option>
                     <option value="mysql">MySQL</option>
                     <option value="sqlserver">SQL Server</option>

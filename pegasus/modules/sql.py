@@ -16,13 +16,12 @@ class sql:
     def __init__(self):
         """Checks all contents exist in the yaml file"""
 
-        config = sql_config().load_config()
+        config = sql_config().load_config(include_additional=True)
 
         config_requirements = ['connections',
                                'commands',
                                'queries',
-                               'better_tables',
-                               'auto_format_queries']
+                               'settings']
 
         # check correct sections exist in config
         for section in config_requirements:
@@ -33,7 +32,7 @@ class sql:
 
     def __run__(self, params=None):
 
-        if self.auto_format_queries:
+        if self.settings['auto_format_queries']:
             sql_config().reformat_yaml()
 
         # check a sql command has been passed
@@ -72,7 +71,8 @@ class sql:
 
         all_results = []
 
-        all_connections = [self.queries[query]['connection'] for query in queries]
+        all_connections = [self.queries[query]['connection']
+                           for query in queries]
 
         all_connections.sort()
 
@@ -83,17 +83,22 @@ class sql:
             if len(connections) > 1:
                 all_results.append(f"%start_border%")
                 all_results.append(f"%header%{conn}")
+                all_results.append(f"%start_row%")
             for query in queries:
 
                 if self.queries[query]['connection'] == conn:
 
+                    all_results.append(f"%start_column%")
+
                     query_details = self.queries[query]
+
                     if len(queries) > 1:
                         all_results.append(query)
 
                     if query_details['connection'] not in self.connections:
+                        connection_tmp = query_details['connection']
                         all_results.append(
-                            f'ERROR: Invalid connection for {query}')
+                            f"Connection '{connection_tmp}' does not exist.")
                         continue
                     else:
                         connection_details = self.connections[query_details['connection']]
@@ -106,6 +111,8 @@ class sql:
                         'columns': results['columns']
                     }
                     all_results.append(query_results)
+                    all_results.append(f"%end_column%")
+            all_results.append(f"%end_row%")
             all_results.append(f"%end_border%")
 
         return all_results
@@ -258,9 +265,26 @@ class sql_config:
     def __init__(self):
         pass
 
-    def load_config(self):
-        with open('configs/sql.yaml', 'r') as stream:
+    def load_config(self, location='configs/sql.yaml', include_additional=None, only_additional=None):
+        with open(location, 'r') as stream:
             config = yaml.safe_load(stream)
+
+        if include_additional:
+            try:
+                with open(config['settings']['additional_config'], 'r') as stream:
+                    network_config = yaml.safe_load(stream)
+
+                config['queries'] = {
+                    **config['queries'],
+                    **network_config['queries']}
+                config['commands'] = {
+                    **config['commands'],
+                    **network_config['commands']}
+            except FileNotFoundError:
+                pass
+        elif only_additional:
+            with open(config['settings']['additional_config'], 'r') as stream:
+                config = yaml.safe_load(stream)
 
         return config
 
@@ -306,18 +330,20 @@ class sql_config:
 
         self.update_config(config)
 
-    def update_settings(self, enabled_settings):
+    def update_settings(self, enabled_settings, additional_config):
 
         config = self.load_config()
 
-        skip = ['queries', 'commands', 'connections']
+        skip = ['queries', 'commands', 'connections', 'additional_config']
+
+        config['settings']['additional_config'] = additional_config
 
         for item in config:
             if item not in skip:
                 if item in enabled_settings:
-                    config[item] = True
+                    config['settings'][item] = True
                 else:
-                    config[item] = False
+                    config['settings'][item] = False
 
         self.update_config(config)
 

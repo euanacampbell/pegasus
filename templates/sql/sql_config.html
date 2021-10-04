@@ -50,7 +50,7 @@
             <a class="nav-link {% if setting_type=='connections' %}active{% endif %} background: #F6F8F9" href="/sqlsetup/connections">Connections</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% if setting_type=='settings' %}active{% endif %} background: #F6F8F9" href="/sqlsetup/settings">Terminal Settings</a>
+            <a class="nav-link {% if setting_type=='settings' %}active{% endif %} background: #F6F8F9" href="/sqlsetup/settings">Settings</a>
           </li>
         </ul>
 
@@ -82,12 +82,12 @@
             <tbody>
               {% for conn in config['connections'] %}
               <form name="update_conn_form" id="update_conn_form" method="POST" action="/sql-api/updateconn" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-              <input name="connName"  value="{{ conn }}" style="margin: 0px; padding: 0px;" type="text" class="form-control invisible" id="connName" placeholder="connection name" hidden>
+              <input name="connName"  value="{{ conn }}" style="margin: 0px; padding: 0px;" type="text" class="form-control invisible" placeholder="connection name" hidden>
                 <tr> <!--TABLE ROW-->
                 <td>{{ conn }}</td>
                 <td>
                   <div class="input-group mb-3">
-                    <select value="d" name="type" id="type" class="custom-select" id="inputGroupSelect01">
+                    <select value="d" name="type" id="type" class="custom-select">
                       <option {% if config['connections'][conn]['type']=='mysql' %} selected="selected"{% endif %} value="mysql">MySQL</option>
                       <option {% if config['connections'][conn]['type']=='sqlserver' %} selected="selected"{% endif %} value="sqlserver">SQL Server</option>
                       <option {% if config['connections'][conn]['type']=='azure' %} selected="selected"{% endif %} value="azure">Azure Server</option>
@@ -120,6 +120,9 @@
             <thead>
               <tr>
                 <th scope="col">name</th>
+                {% if config['settings']['additional_config'] != '' %} 
+                  <th scope="col">config location</th>
+                {% endif %}
                 <th scope="col">connection</th>
                 <th scope="col">query</th>
                 <th scope="col"></th>
@@ -130,10 +133,13 @@
               {% for query in config['queries'] %}
                 <tr> <!--TABLE ROW-->
                 <td>{{ query }}</td>
+                {% if config['settings']['additional_config'] != '' %} 
+                  <th>{{ config['queries'][query]['location'] }}</th>
+                {% endif %}
                 <td>{{ config['queries'][query]['connection'] }}</td>
-                <td><textarea name="query" class="form-control" id="exampleFormControlTextarea1" style="overflow: auto; margin-bottom: 5px; font-family: 'IBM Plex Mono', monospace;" rows="1">{{ config['queries'][query]['query'] }}</textarea></td>
-                <td><button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#edit{{ query }}Modal"><i class="fa fa-edit"></i></button></td>
-                <td><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{query}}Modal"><i class="fa fa-trash-o"></i></button></td>
+                <td><textarea name="query" class="form-control" style="overflow: auto; margin-bottom: 5px; font-family: 'IBM Plex Mono', monospace;" rows="1">{{ config['queries'][query]['query'] }}</textarea></td>
+                <td><button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#edit{{ query }}Modal" {% if config['queries'][query]['location'] == 'external' %}disabled{% endif %}><i class="fa fa-edit"></i></button></td>
+                <td><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{query}}Modal" {% if config['queries'][query]['location'] == 'external' %}disabled{% endif %}><i class="fa fa-trash-o"></i></button></td>
               </tr><!--TABLE ROW-->
               {% endfor %}
           </table>
@@ -152,11 +158,17 @@
         {% for command in config['commands'] %}
         
         <div class="col-sm-6, col-md-4, col-lg-4">
-          <form name="update_command_form" id="update_command_form" method="POST" action="/sql-api/updatecommand" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <form name="update_command_form" method="POST" action="/sql-api/updatecommand" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
           
             <div class="card shadow mb-5 bg-white rounded" style="width: 100%; margin: 5px;">
               <div class="card-header">
                 <h5>{{ command }}</h5> 
+
+                {% if config['commands'][command]['location'] == 'external' %} 
+                  <small>external config</small> 
+                {% endif %}
+
+
               </div>
               <div class="card-body">
                 {% for query in config['commands'][command]['queries'] %}
@@ -164,8 +176,8 @@
                 {% endfor %}
               </div>
               <div class="card-footer">
-                  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#update{{ command }}Modal"><i class="fa fa-edit"></i></button>
-                  <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{command}}Modal"><i class="fa fa-trash-o"></i></button>
+                  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#update{{ command }}Modal" {% if config['commands'][command]['location'] == 'external' %}disabled{% endif %}><i class="fa fa-edit"></i></button>
+                  <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{command}}Modal" {% if config['commands'][command]['location'] == 'external' %}disabled{% endif %}><i class="fa fa-trash-o"></i></button>
               </div>
             </div>
           </form>
@@ -181,7 +193,7 @@
         
 
         {% if setting_type=='settings' %}
-        <p>Toggle settings for using SQL in Pegasus Terminal.</p>
+        <p>Toggle settings for using SQL in Pegasus.</p>
         <!-- SETTINGS -->
         <form name="settingsForm" class="shadow p-3 mb-5 bg-white rounded" action="/sql-api/updatesettings" style="padding: 10px; margin-bottom: 15px; margin-top: 15px;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
           <div class="form-check">
@@ -196,12 +208,14 @@
               better_tables
             </label>
           </div>
+          <small id="emailHelp" class="form-text text-muted">Only commands and queries can be loaded from the additional config, missing connections should be added.</small>
           <div class="input-group mb-2">
               <div class="input-group-prepend">
-                  <div class="input-group-text">Refresh Time</div>
+                  <div class="input-group-text">Additional Config</div>
               </div>
-          <input name="auto_refresh" type="text" class="form-control" id="refresh_time" placeholder="(seconds)" step="1" data-bind="value:replyNumber">
+          <input name="additional_config" type="text" class="form-control" id="additional_config" value="{{ config['settings']['additional_config'] }}" placeholder="{{ config['settings']['additional_config'] }}">
           </div>
+    
           <button type="submit" class="btn btn-secondary">Save</button>
         </form>
         <!-- END OF SETTINGS -->
