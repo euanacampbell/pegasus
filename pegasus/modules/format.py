@@ -25,7 +25,10 @@ class format:
         if format_type not in format_dispatch:
             raise Exception('format not recognised')
 
-        c_board = Clipboard.get_clipboard()
+        if len(params) == 1:
+            c_board = Clipboard.get_clipboard()
+        else:
+            c_board = " ".join(params[1:])
 
         return_values = []
         try:
@@ -34,7 +37,6 @@ class format:
             return_values.append(
                 f'Formatted {format_type} and added it to your clipboard.')
 
-            return_values.append('After')
             return_values.append(formatted)
             return return_values
         except:

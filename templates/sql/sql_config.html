@@ -81,23 +81,23 @@
             </thead>
             <tbody>
               {% for conn in config['connections'] %}
-              <form name="update_conn_form" id="update_conn_form" method="POST" action="/sql-api/updateconn" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+              <form name="update_conn_form" method="POST" action="/sql-api/updateconn" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
               <input name="connName"  value="{{ conn }}" style="margin: 0px; padding: 0px;" type="text" class="form-control invisible" placeholder="connection name" hidden>
                 <tr> <!--TABLE ROW-->
                 <td>{{ conn }}</td>
                 <td>
                   <div class="input-group mb-3">
-                    <select value="d" name="type" id="type" class="custom-select">
+                    <select value="d" name="type" class="custom-select">
                       <option {% if config['connections'][conn]['type']=='mysql' %} selected="selected"{% endif %} value="mysql">MySQL</option>
                       <option {% if config['connections'][conn]['type']=='sqlserver' %} selected="selected"{% endif %} value="sqlserver">SQL Server</option>
                       <option {% if config['connections'][conn]['type']=='azure' %} selected="selected"{% endif %} value="azure">Azure Server</option>
                     </select>
                   </div>
                 </td>
-                <td><input name="server" value="{{ config['connections'][conn]['server'] }}" type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3"></td>
-                <td><input name="database" value="{{ config['connections'][conn]['database'] }}" type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3"></td>
-                <td><input name="username" value="{{ config['connections'][conn]['username'] }}" type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3"></td>
-                <td><input name="password" value="{{ config['connections'][conn]['password'] }}" type="password" class="form-control" id="basic-url" aria-describedby="basic-addon3"></td>
+                <td><input name="server" value="{{ config['connections'][conn]['server'] }}" type="text" class="form-control" aria-describedby="basic-addon3"></td>
+                <td><input name="database" value="{{ config['connections'][conn]['database'] }}" type="text" class="form-control" aria-describedby="basic-addon3"></td>
+                <td><input name="username" value="{{ config['connections'][conn]['username'] }}" type="text" class="form-control" aria-describedby="basic-addon3"></td>
+                <td><input name="password" value="{{ config['connections'][conn]['password'] }}" type="password" class="form-control" aria-describedby="basic-addon3"></td>
                 <td><button type="submit" class="btn btn-secondary"><i class="fa fa-save"></i></button></td>
                 <td><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{conn}}Modal"><i class="fa fa-trash-o"></i></button></td>
               </tr><!--TABLE ROW-->

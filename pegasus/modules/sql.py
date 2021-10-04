@@ -8,6 +8,7 @@ from rich import print
 from pegasus.modules.generic.clipboard import Clipboard
 from tabulate import tabulate
 from pegasus.modules.format import format
+import base64
 
 
 class sql:
@@ -87,7 +88,7 @@ class sql:
             for query in queries:
 
                 if self.queries[query]['connection'] == conn:
-                    
+
                     if self.settings['two_columns']:
                         all_results.append(f"%start_column%")
 
@@ -190,7 +191,8 @@ class SQL_Conn:
             self.get_tables = 'SHOW TABLES;'
             self.connection = pymysql.connect(host=conn['server'],
                                               user=conn['username'],
-                                              password=conn['password'],
+                                              password=base64.b64decode(
+                                                  conn['password']).decode("utf-8"),
                                               database=conn['database'],
                                               cursorclass=pymysql.cursors.DictCursor)
         elif self.type == 'sqlserver':
@@ -200,7 +202,7 @@ class SQL_Conn:
         elif self.type == 'azure':
             self.get_tables = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'"
             username = conn['username']
-            password = conn['password']
+            password = base64.b64decode(conn['password']).decode("utf-8")
             driver = '{ODBC Driver 17 for SQL Server}'
             connection = f'DRIVER={driver};SERVER=tcp:{server};PORT=1433;DATABASE={database};UID={username};PWD={{' + \
                 password + '};Authentication=ActiveDirectoryPassword'
@@ -360,6 +362,9 @@ class sql_config:
     def update_conn(self, connection_name, connection_details):
 
         config = self.load_config()
+
+        connection_details['password'] = base64.b64encode(
+            connection_details['password'].encode("utf-8"))
 
         config['connections'][connection_name] = connection_details
 

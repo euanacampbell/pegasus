@@ -59,7 +59,7 @@ class Pegasus:
             command = sub_commands_lookup[command]
             module = globals()[command]()
         else:
-            return self.build_return(f"{command}' command not recognised, run 'help' to see available commands.", error='error')
+            return self.build_return(f"'{command}' command not recognised, run 'help' to see available commands.", error='error')
 
         # catch any errors in the command/module
         # module_result = module.__run__(param)
@@ -75,19 +75,23 @@ class Pegasus:
 
         help_commands = []
         for file in self.available_modules():
+            sub = []
 
             # get description
             try:
                 instance = globals()[file]()
                 description = instance.__doc__
-                description += '\nSub-commands: ' + \
-                    ', '.join(instance.subcommands())
+                for sub_command in instance.subcommands():
+                    sub.append(
+                        [sub_command, f"Inherited from {file}."])
             except KeyError:
                 description = f'Error, not imported.'
             except AttributeError:
                 pass
 
             help_commands.append([file, description])
+            if len(sub) > 0:
+                help_commands = help_commands + sub
 
         return [help_commands]
 
