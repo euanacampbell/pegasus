@@ -65,58 +65,64 @@ class sql:
         """Takes a given command/param and runs it"""
 
         if command in self.commands:
-            queries = self.commands[command]['queries']
-            queries.sort()
+            queries = self.commands[command]['query_order'].split(', ')
+
         elif command in self.queries:
             queries = [command]
 
         all_results = []
 
-        all_connections = [self.queries[query]['connection']
-                           for query in queries]
+        border_started = False
 
-        all_connections.sort()
+        all_results.append(f"%start_row%")
+        for index, query in enumerate(queries):
 
-        connections = set(all_connections)
+            query_details = self.queries[query]
+            try:
+                connection_details = self.connections[query_details['connection']]
+            except KeyError:
+                missing_connection = query_details['connection']
+                all_results.append(
+                    f"Connection '{missing_connection}' does not exist.")
+                continue
 
-        for conn in connections:
+            results = SQL_Conn().run_query(connection_details,
+                                           query_details['query'], param)
 
-            if len(connections) > 1:
+            query_results = {
+                'results': results['results'],
+                'columns': results['columns']
+            }
+
+            prev_conn = self.queries[queries[index-1]]['connection']
+            curr_conn = query_details['connection']
+
+            if curr_conn != prev_conn:
+
+                if border_started == True:
+                    all_results.append(f"%end_border%")
                 all_results.append(f"%start_border%")
-                all_results.append(f"%header%{conn}")
-            all_results.append(f"%start_row%")
-            for query in queries:
+                conn_str = query_details['connection']
+                all_results.append(f"%header%{conn_str}")
+                border_started = True
+            elif index == 0:
+                all_results.append(f"%start_border%")
+                conn_str = query_details['connection']
+                all_results.append(f"%header%{conn_str}")
+                border_started = True
 
-                if self.queries[query]['connection'] == conn:
+            if self.settings['two_columns']:
+                all_results.append(f"%start_column%")
 
-                    if self.settings['two_columns']:
-                        all_results.append(f"%start_column%")
+            all_results.append(query)
+            all_results.append(query_results)
 
-                    query_details = self.queries[query]
+            if self.settings['two_columns']:
+                all_results.append(f"%end_column%")
 
-                    if len(queries) > 1:
-                        all_results.append(query)
-
-                    if query_details['connection'] not in self.connections:
-                        connection_tmp = query_details['connection']
-                        all_results.append(
-                            f"Connection '{connection_tmp}' does not exist.")
-                        continue
-                    else:
-                        connection_details = self.connections[query_details['connection']]
-
-                    results = SQL_Conn().run_query(connection_details,
-                                                   query_details['query'], param)
-
-                    query_results = {
-                        'results': results['results'],
-                        'columns': results['columns']
-                    }
-                    all_results.append(query_results)
-                    if self.settings['two_columns']:
-                        all_results.append(f"%end_column%")
-            all_results.append(f"%end_row%")
+        if border_started == True:
             all_results.append(f"%end_border%")
+        all_results.append(f"%end_row%")
 
         return all_results
 
@@ -370,11 +376,22 @@ class sql_config:
 
         self.update_config(config)
 
-    def update_command(self, command_name, queries):
+    def update_command(self, command_name, queries, query_order):
 
         config = self.load_config()
 
-        config['commands'][command_name] = {'queries': queries}
+        query_order = query_order.split(", ")
+
+        query_order = [query.strip()
+                       for query in query_order if query.strip() in queries]
+        for query in queries:
+            if query not in query_order:
+                query_order.append(query)
+
+        query_order = ', '.join(query_order)
+
+        config['commands'][command_name] = {'queries': queries,
+                                            'query_order': query_order}
 
         self.update_config(config)
 

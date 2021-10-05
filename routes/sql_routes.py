@@ -116,10 +116,13 @@ def deletecommand(command):
 @sql_routes.route('/sql-api/updatecommand', methods=['GET', 'POST'])
 def updatecommand():
 
-    enabled_queries = [i for i in request.values if i != 'commandName']
+    enabled_queries = [i for i in request.values if i !=
+                       'commandName' and i != 'query_order']
     command_name = str(request.form.get('commandName', 0))
 
-    sql_config().update_command(command_name, enabled_queries)
+    query_order = str(request.form.get('query_order', 0))
+
+    sql_config().update_command(command_name, enabled_queries, query_order)
 
     flash('Command updated.')
 

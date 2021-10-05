@@ -171,9 +171,7 @@
 
               </div>
               <div class="card-body">
-                {% for query in config['commands'][command]['queries'] %}
-                  <p class="mb-0">{{ query }}</p>
-                {% endfor %}
+                <p class="mb-0">{{ config['commands'][command]['query_order'] }}</p>
               </div>
               <div class="card-footer">
                   <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#update{{ command }}Modal" {% if config['commands'][command]['location'] == 'external' %}disabled{% endif %}><i class="fa fa-edit"></i></button>

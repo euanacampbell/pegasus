@@ -59,7 +59,7 @@
             {% elif item['type']=='dictoflist' %}
               <div style="width: 100%; max-height: 80vh; overflow-y: scroll;">
               <!-- <div class="scroll shadow mb-2" style="overflow: auto; white-space: nowrap;"> -->
-              <table class="table table-hover table-bordered align-middle p-3 bg-white rounded mb-0" style="font-size: x-small;">
+              <table class="table table-hover table-bordered align-middle p-3 bg-white rounded mb-1" style="font-size: x-small;">
                 <thead>
                   <tr>
                 {% for row in item['content']['columns'] %}
@@ -83,7 +83,7 @@
             {% elif item['type']=='listoflist' %}
             <div style="width: 100%; min-height: 40%; max-height: 80%; overflow-y: scroll;">
             <!-- <div class="scroll shadow mb-2" style="overflow: auto; white-space: nowrap;"> -->
-              <table class="table align-middle p-3 bg-white rounded mb-0" style="font-size: x-small;">
+              <table class="table align-middle p-3 bg-white rounded mb-1" style="font-size: x-small;">
                 <tbody>
                 {% for row in item['content'] %}
                     <tr>
