@@ -84,6 +84,8 @@ def updatequery():
     query = query.replace("\r", " ")
     query = query.replace("\n", " ")
 
+    query = ' '.join(query.split())
+
     sql_config().new_query(query_name, connection, query)
 
     flash('Query updated.')

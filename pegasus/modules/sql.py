@@ -65,7 +65,10 @@ class sql:
         """Takes a given command/param and runs it"""
 
         if command in self.commands:
-            queries = self.commands[command]['query_order'].split(', ')
+            try:
+                queries = self.commands[command]['query_order'].split(', ')
+            except KeyError:
+                return [f"'query_order' missing from sql.yaml config for command '{command}'."]
 
         elif command in self.queries:
             queries = [command]

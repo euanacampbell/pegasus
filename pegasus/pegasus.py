@@ -7,8 +7,8 @@ import os
 import sys
 from os import listdir
 from os.path import isfile, join
-import yaml
 from rich.traceback import install
+import traceback
 
 
 class Pegasus:
@@ -48,8 +48,10 @@ class Pegasus:
         if command in system_commands:
             result = system_commands[command]()
             return self.build_return(result)
-
-        sub_commands_lookup = self.sub_commands()
+        try:
+            sub_commands_lookup = self.sub_commands()
+        except Exception as e:
+            return self.build_return(traceback.format_exc(), error='error')
         sub_commands = list(sub_commands_lookup.keys())
 
         if command in globals():
@@ -69,7 +71,7 @@ class Pegasus:
             module_result = module.__run__(param)
             return self.build_return(module_result)
         except Exception as e:
-            return self.build_return(str(e), error='error')
+            return self.build_return(traceback.format_exc(), error='error')
 
     def help(self):
 

@@ -44,9 +44,19 @@ while True:
     response = Pegasus().run_command(text_input)
 
     for item in response['response']:
+
         if item['type'] in ('string', 'int', 'error'):
 
-            print(f"\n{item['content']}")
+            content = item['content']
+
+            for i in ['%end_border%', '%end_row%', '%start_border%', '%start_row%', '%header%']:
+
+                content = content.replace(i, '')
+
+            if content == '':
+                continue
+
+            print(f"\n{content}")
         elif item['type'] == 'dictoflist':
             print_table(item['content']['results'],
                         columns=item['content']['columns'], better_tables=better_tables)
