@@ -49,8 +49,8 @@ class sql:
         command_dispatch = {
             'copy': self.copy_query,
             'view': self.view_queries,
-            'help': self.help
-        }
+            'help': self.help,
+            'encrypt': self.encrypt}
 
         if sql_command in command_dispatch:
             return command_dispatch[sql_command](sql_param)
@@ -188,6 +188,12 @@ class sql:
 
         return ['commands', commands, 'queries', queries]
 
+    def encrypt(self, value):
+
+        encrypted = base64.b64encode(value.encode("utf-8"))
+
+        return str(encrypted)
+
 
 class SQL_Conn:
 
@@ -198,6 +204,8 @@ class SQL_Conn:
         database = conn['database']
         if self.type == 'mysql':
             self.get_tables = 'SHOW TABLES;'
+            print(base64.b64decode(
+                conn['password']).decode("utf-8"))
             self.connection = pymysql.connect(host=conn['server'],
                                               user=conn['username'],
                                               password=base64.b64decode(

@@ -1,4 +1,6 @@
+from platform import version
 from pegasus.pegasus import Pegasus
+from pegasus.modules.update import update
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from pegasus.modules.sql import sql_config, SQL_Conn
 from pegasus.modules.format import format
@@ -57,7 +59,7 @@ def sql_default():
 @sql_routes.route('/sqlsetup/<setting_type>')
 def sql_setup(setting_type):
 
-    return render_template('sql/sql_config.html', config=setup_config(), setting_type=setting_type, message=None)
+    return render_template('sql/sql_config.html', config=setup_config(), version=update().__VERSION__, setting_type=setting_type, message=None)
 
 
 # QUERY

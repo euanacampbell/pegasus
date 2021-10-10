@@ -1,24 +1,27 @@
+from platform import version
 from pegasus.pegasus import Pegasus
+from pegasus.modules.update import update
 from flask import Blueprint, render_template, request, redirect, url_for
 core_routes = Blueprint('core_routes', __name__)
 
 
 pegasus = Pegasus()
 
+current_version = update().__VERSION__
+
 
 @core_routes.route('/')
 def home():
 
-    info = {}
-    subcommands = [sub for sub in pegasus.sub_commands()]
-    info['available_commands'] = pegasus.available_commands() + subcommands
-
-    return render_template('home.html', info=info)
+    return render_template('home.html', info=None, version=current_version)
 
 
 @core_routes.route('/<command>', methods=['GET', 'POST'])
 def command(command):
-    data = request.values['param']
+    try:
+        data = request.values['param']
+    except:
+        data = ''
 
     if command == '':
         return redirect(url_for('home'))
@@ -26,4 +29,4 @@ def command(command):
     command_result = pegasus.run_command(command + ' ' + data)
     command_result['command'] = command
     command_result['param'] = data
-    return render_template('home.html', info=command_result)
+    return render_template('home.html', info=command_result, version=current_version)

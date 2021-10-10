@@ -51,7 +51,8 @@ class Pegasus:
         try:
             sub_commands_lookup = self.sub_commands()
         except Exception as e:
-            return self.build_return(traceback.format_exc(), error='error')
+            # return self.build_return(traceback.format_exc(), error='error')
+            return self.build_return(e, error='error')
         sub_commands = list(sub_commands_lookup.keys())
 
         if command in globals():
@@ -71,7 +72,8 @@ class Pegasus:
             module_result = module.__run__(param)
             return self.build_return(module_result)
         except Exception as e:
-            return self.build_return(traceback.format_exc(), error='error')
+            # return self.build_return(traceback.format_exc(), error='error')
+            return self.build_return(e, error='error')
 
     def help(self):
 
@@ -152,6 +154,8 @@ class Pegasus:
     def result_type(self, result):
 
         if type(result) is str:
+            result_type = 'string'
+        elif type(result) is bytes:
             result_type = 'string'
         elif type(result) is list:
             result_type = 'list'

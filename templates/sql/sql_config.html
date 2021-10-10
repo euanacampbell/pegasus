@@ -66,15 +66,15 @@
         <div class="row">
         
         <div class="col-md-12">
-          <table class="table table-bordered shadow p-3 mb-5 bg-white rounded" style="margin: 5px;">
+          <table class="table table-bordered shadow p-3 mb-5 bg-white rounded text-center" style="margin: 5px; vertical-align: middle">
             <thead>
               <tr>
-                <th scope="col">name</th>
-                <th scope="col">type</th>
-                <th scope="col">server</th>
-                <th scope="col">database</th>
-                <th scope="col">username</th>
-                <th scope="col">password</th>
+                <th scope="col" class="text-center">name</th>
+                <th scope="col" class="text-center">type</th>
+                <th scope="col" class="text-center">server</th>
+                <th scope="col" class="text-center">database</th>
+                <th scope="col" class="text-center">username</th>
+                <th scope="col" class="text-center">password</th>
                 <th scope="col"></th>
                 <th scope="col"></th>
               </tr>
@@ -84,22 +84,22 @@
               <form name="update_conn_form" method="POST" action="/sql-api/updateconn" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
               <input name="connName"  value="{{ conn }}" style="margin: 0px; padding: 0px;" type="text" class="form-control invisible" placeholder="connection name" hidden>
                 <tr> <!--TABLE ROW-->
-                <td>{{ conn }}</td>
+                <td style="vertical-align: middle;">{{ conn }}</td>
                 <td>
-                  <div class="input-group mb-3">
-                    <select value="d" name="type" class="custom-select">
+                  <div class="input-group">
+                    <select value="d" name="type" class="custom-select mb-0" style="font-size: inherit;">
                       <option {% if config['connections'][conn]['type']=='mysql' %} selected="selected"{% endif %} value="mysql">MySQL</option>
                       <option {% if config['connections'][conn]['type']=='sqlserver' %} selected="selected"{% endif %} value="sqlserver">SQL Server</option>
                       <option {% if config['connections'][conn]['type']=='azure' %} selected="selected"{% endif %} value="azure">Azure Server</option>
                     </select>
                   </div>
                 </td>
-                <td><input name="server" value="{{ config['connections'][conn]['server'] }}" type="text" class="form-control" aria-describedby="basic-addon3"></td>
-                <td><input name="database" value="{{ config['connections'][conn]['database'] }}" type="text" class="form-control" aria-describedby="basic-addon3"></td>
-                <td><input name="username" value="{{ config['connections'][conn]['username'] }}" type="text" class="form-control" aria-describedby="basic-addon3"></td>
-                <td><input name="password" value="{{ config['connections'][conn]['password'] }}" type="password" class="form-control" aria-describedby="basic-addon3"></td>
-                <td><button type="submit" class="btn btn-secondary"><i class="fa fa-save"></i></button></td>
-                <td><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{conn}}Modal"><i class="fa fa-trash-o"></i></button></td>
+                <td ><input name="server" value="{{ config['connections'][conn]['server'] }}" type="text" class="form-control mb-0" aria-describedby="basic-addon3" style="font-size: inherit;"></td>
+                <td><input name="database" value="{{ config['connections'][conn]['database'] }}" type="text" class="form-control mb-0" aria-describedby="basic-addon3" style="font-size: inherit;"></td>
+                <td><input name="username" value="{{ config['connections'][conn]['username'] }}" type="text" class="form-control mb-0" aria-describedby="basic-addon3" style="font-size: inherit;"></td>
+                <td><input name="password" value="shh no peeking" type="password" class="form-control mb-0" aria-describedby="basic-addon3" style="font-size: inherit;"></td>
+                <td style="vertical-align: middle;"><button type="submit" class="btn btn-secondary"><i class="fa fa-save"></i></button></td>
+                <td style="vertical-align: middle;"><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{conn}}Modal"><i class="fa fa-trash-o"></i></button></td>
               </tr><!--TABLE ROW-->
               </form>
               {% endfor %}
@@ -116,30 +116,32 @@
           Add 
         </button>
 
-        <table class="table table-bordered shadow p-3 mb-5 bg-white rounded" style="margin: 5px;">
+        <table class="table table-bordered shadow p-3 mb-5 bg-white rounded text-center" style="margin: 5px; vertical-align: middle">
             <thead>
               <tr>
-                <th scope="col">name</th>
+                <th scope="col" class="text-center">name</th>
                 {% if config['settings']['additional_config'] != '' %} 
-                  <th scope="col">config location</th>
+                  <th scope="col" class="text-center">config location</th>
                 {% endif %}
-                <th scope="col">connection</th>
-                <th scope="col">query</th>
-                <th scope="col"></th>
-                <th scope="col"></th>
+                <th scope="col" class="text-center">connection</th>
+                <th scope="col" class="text-center">query</th>
+                <th scope="col" class="text-center"></th>
               </tr>
             </thead>
             <tbody>
               {% for query in config['queries'] %}
                 <tr> <!--TABLE ROW-->
-                <td>{{ query }}</td>
+                <td style="vertical-align: middle;">{{ query }}</td>
                 {% if config['settings']['additional_config'] != '' %} 
-                  <th>{{ config['queries'][query]['location'] }}</th>
+                  <td style="vertical-align: middle;">{{ config['queries'][query]['location'] }}</td>
                 {% endif %}
-                <td>{{ config['queries'][query]['connection'] }}</td>
-                <td><textarea name="query" class="form-control" style="overflow: auto; margin-bottom: 5px; font-family: 'IBM Plex Mono', monospace;" rows="1">{{ config['queries'][query]['query'] }}</textarea></td>
-                <td><button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#edit{{ query }}Modal" {% if config['queries'][query]['location'] == 'external' %}disabled{% endif %}><i class="fa fa-edit"></i></button></td>
-                <td><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{query}}Modal" {% if config['queries'][query]['location'] == 'external' %}disabled{% endif %}><i class="fa fa-trash-o"></i></button></td>
+                <td style="vertical-align: middle;">{{ config['queries'][query]['connection'] }}</td>
+                <td><textarea name="query" class="form-control mb-0" style="overflow: auto; margin-bottom: 5px; font-family: 'IBM Plex Mono', monospace; font-size: inherit;" rows="1">{{ config['queries'][query]['query'] }}</textarea></td>
+                <td style="vertical-align: middle;">
+                  <button type="button" class="btn btn-success" onclick="location.href='/{{ query }}'"><i class="fa fa-external-link"></i></button>
+                  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#edit{{ query }}Modal" {% if config['queries'][query]['location'] == 'external' %}disabled{% endif %}><i class="fa fa-edit"></i></button>
+                  <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{query}}Modal" {% if config['queries'][query]['location'] == 'external' %}disabled{% endif %}><i class="fa fa-trash-o"></i></button>
+                </td>
               </tr><!--TABLE ROW-->
               {% endfor %}
           </table>
@@ -174,9 +176,10 @@
                 <p class="mb-0">{{ config['commands'][command]['query_order'] }}</p>
               </div>
               <div class="card-footer">
-                  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#update{{ command }}Modal" {% if config['commands'][command]['location'] == 'external' %}disabled{% endif %}><i class="fa fa-edit"></i></button>
-                  <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{command}}Modal" {% if config['commands'][command]['location'] == 'external' %}disabled{% endif %}><i class="fa fa-trash-o"></i></button>
-              </div>
+                <button type="button" class="btn btn-success" onclick="location.href='/{{ command }}'"><i class="fa fa-external-link"></i></button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#update{{ command }}Modal" {% if config['commands'][command]['location'] == 'external' %}disabled{% endif %}><i class="fa fa-edit"></i></button>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{command}}Modal" {% if config['commands'][command]['location'] == 'external' %}disabled{% endif %}><i class="fa fa-trash-o"></i></button>
+                </div>
             </div>
           </form>
         </div>
