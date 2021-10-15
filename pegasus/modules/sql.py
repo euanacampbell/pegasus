@@ -287,8 +287,12 @@ class sql_config:
         pass
 
     def load_config(self, location='configs/sql.yaml', include_additional=None, only_additional=None):
-        with open(location, 'r') as stream:
-            config = yaml.safe_load(stream)
+        try:
+            with open(location, 'r') as stream:
+                config = yaml.safe_load(stream)
+        except FileNotFoundError:
+            with open('configs/example_sql.yaml', 'r') as stream:
+                config = yaml.safe_load(stream)
 
         if include_additional:
             try:

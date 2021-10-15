@@ -53,3 +53,7 @@ class update:
                 ["git", "pull"]).strip()
 
             return '\nPegasus is updating. If you are running the web version, it will auto-restart. If you are running the terminal version, please close and re-open Pegasus.'
+
+    def subcommands(self):
+
+        return ['check', 'run']

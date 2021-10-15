@@ -77,7 +77,7 @@ class Pegasus:
 
     def help(self):
 
-        help_commands = []
+        help_commands = [['Commands', 'Description']]
         for file in self.available_modules():
             sub = []
 
