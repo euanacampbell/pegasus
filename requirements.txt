@@ -9,3 +9,4 @@ gunicorn==20.0.4
 PyYAML==6.0
 flask==1.1.2
 pyodbc==4.0.32
+tabulate==0.8.9
