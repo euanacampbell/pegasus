@@ -21,12 +21,16 @@ class update:
         else:
             return "did you mean to use 'update check' or 'update run'?"
 
-    def is_latest_version(self):
+    def get_latest_version(self):
 
         response = get(
             "https://api.github.com/repos/euanacampbell/pegasus/releases/latest")
 
-        latest_version = response.json()["tag_name"]
+        return response.json()["tag_name"]
+
+    def is_latest_version(self):
+
+        latest_version = self.get_latest_version()
 
         if latest_version != self.__VERSION__:
             self.latest_version = latest_version
