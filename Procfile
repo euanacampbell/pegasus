@@ -1,1 +1,1 @@
-web: gunicorn app:pegasus_web --preload
+web: gunicorn pegasus_web:app --preload
