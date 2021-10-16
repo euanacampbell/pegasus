@@ -214,7 +214,7 @@ class SQL_Conn:
                                               cursorclass=pymysql.cursors.DictCursor)
         elif self.type == 'sqlserver':
             self.get_tables = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'"
-            self.connection = pypyodbc.connect(
+            self.connection = pyodbc.connect(
                 f'DRIVER=SQL Server; SERVER={server}; DATABASE={database};Trusted_Connection=yes;')
         elif self.type == 'azure':
             self.get_tables = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'"
@@ -223,7 +223,7 @@ class SQL_Conn:
             driver = '{ODBC Driver 17 for SQL Server}'
             connection = f'DRIVER={driver};SERVER=tcp:{server};PORT=1433;DATABASE={database};UID={username};PWD={{' + \
                 password + '};Authentication=ActiveDirectoryPassword'
-            self.connection = pypyodbc.connect(connection)
+            self.connection = pyodbc.connect(connection)
             self.connection.add_output_converter(-155, str)
         else:
             raise Exception(f"type {self.type} not recognised")
