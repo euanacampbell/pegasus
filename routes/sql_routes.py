@@ -9,7 +9,7 @@ sql_routes = Blueprint('sql_routes', __name__)
 
 
 def setup_config():
-    # comment to trigger release
+
     config_local = sql_config().load_config()
     config = sql_config().load_config(include_additional=True)
 
