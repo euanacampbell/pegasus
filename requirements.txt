@@ -5,3 +5,4 @@ sqlparse==0.4.1
 rich==10.7.0
 requests==2.26.0
 psutil==5.8.0
+gunicorn==20.0.4
