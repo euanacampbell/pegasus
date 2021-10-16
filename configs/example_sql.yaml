@@ -31,22 +31,19 @@ commands:
 connections:
   an_azure_server:
     database: db_name
-    password: !!binary |
-      YzJob0BDUWBDUWBIDWBIGJtYz0=
+    password: ''
     server: server_name
     type: azure
     username: username
   company:
     database: RealParsmodel
-    password: !!binary |
-      YzJob0BDUWBDUWBIDWBIGJtYz0=
+    password: ''
     server: localhost
     type: mysql
     username: root
   mysql:
     database: test_db
-    password: !!binary |
-      YzJob0BDUWBDUWBIDWBIGJtYz0=
+    password: ''
     server: localhost
     type: mysql
     username: root
