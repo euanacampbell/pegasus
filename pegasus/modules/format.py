@@ -1,8 +1,10 @@
 import sqlparse
 import json
 import xml.dom.minidom
-
-from pegasus.modules.generic.clipboard import Clipboard
+try:
+    from pegasus.modules.generic.clipboard import Clipboard
+except:
+    pass
 
 
 class format:
