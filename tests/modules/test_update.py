@@ -40,7 +40,7 @@ def test_incorrect_command():
 
     response = u.__run__('incorrect')
 
-    expected = "did you mean to use 'update check' or 'update run'?"
+    expected = "Did you mean to use 'update check' or 'update run'?"
 
     assert response == expected
 

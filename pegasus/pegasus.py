@@ -77,8 +77,10 @@ class Pegasus:
     def help(self):
 
         help_commands = [['Commands', 'Description']]
+
         sys_commands = ', '.join(list(self.system_commands.keys()))
-        help_commands.append(['system', sys_commands])
+        help_commands.append([sys_commands, 'System commands.'])
+
         for file in self.available_modules():
 
             # get description
