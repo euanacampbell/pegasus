@@ -204,8 +204,6 @@ class SQL_Conn:
         database = conn['database']
         if self.type == 'mysql':
             self.get_tables = 'SHOW TABLES;'
-            print(base64.b64decode(
-                conn['password']).decode("utf-8"))
             self.connection = pymysql.connect(host=conn['server'],
                                               user=conn['username'],
                                               password=base64.b64decode(

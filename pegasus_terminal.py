@@ -50,7 +50,6 @@ while True:
             content = item['content']
 
             for i in ['%end_border%', '%end_row%', '%start_border%', '%start_row%', '%header%']:
-
                 content = content.replace(i, '')
 
             if content == '':
