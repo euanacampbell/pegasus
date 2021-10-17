@@ -15,8 +15,7 @@ class test_display:
             'list_of_strings': ['hello', 'my', 'name', 'is', 'test'],
             'list_of_ints': [14, 19, 41, 1242, 0],
             'list_of_lists': [['hello', 'my', 'name', 'is', 'test'], ['hello', 'my', 'name', 'is', 'test'], ['hello', 'my', 'name', 'is', 'test'], ['hello', 'my', 'name', 'is', 'test'], ['hello', 'my', 'name', 'is', 'test']],
-            'list_of_dicts': [{'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}],
-            'tablelist': 'test'
+            'list_of_dicts': [{'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}, {'hello': 'test', 'hello': 'test',  'hello': 'test',  'hello': 'test'}]
 
         }
 

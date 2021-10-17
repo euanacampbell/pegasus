@@ -11,15 +11,17 @@ class update:
         self.latest_version = 'v0.15'
 
     def __run__(self, params=None):
+        default = "did you mean to use 'update check' or 'update run'?"
+
         if len(params) == 0:
-            return "did you mean to use 'update check' or 'update run'?"
+            return default
         if params[0] == 'check':
             return self.check_for_updates(print_toggle=True)
 
         elif params[0] == 'run':
             return self.update_pegasus()
         else:
-            return "did you mean to use 'update check' or 'update run'?"
+            return default
 
     def get_latest_version(self):
 
