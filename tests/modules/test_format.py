@@ -1,15 +1,14 @@
 from pegasus.modules.format import format
-from pegasus.modules.generic.clipboard import Clipboard
 
 
 def test_json():
     f = format()
 
-    before = '{"glossary":{"title":"example glossary","GlossDiv":{"title":"S","GlossList":{"GlossEntry":{"ID":"SGML","SortAs":"SGML","GlossTerm":"Standard Generalized Markup Language","Acronym":"SGML","Abbrev":"ISO 8879:1986","GlossDef":{"para":"A meta-markup language, used to create markup languages such as DocBook.","GlossSeeAlso":["GML","XML"]},"GlossSee":"markup"}}}}}'
-    Clipboard.add_to_clipboard(before)
-    results = f.__run__(['json', before])
+    assert 1 == 1
 
-    after = Clipboard.get_clipboard()
+    before = '{"glossary":{"title":"example glossary","GlossDiv":{"title":"S","GlossList":{"GlossEntry":{"ID":"SGML","SortAs":"SGML","GlossTerm":"Standard Generalized Markup Language","Acronym":"SGML","Abbrev":"ISO 8879:1986","GlossDef":{"para":"A meta-markup language, used to create markup languages such as DocBook.","GlossSeeAlso":["GML","XML"]},"GlossSee":"markup"}}}}}'
+
+    after = f.__run__(['json', before])[1]
 
     assert before != after
 
@@ -18,22 +17,18 @@ def test_sql():
     f = format()
 
     before = 'SELECT * FROM users'
-    Clipboard.add_to_clipboard(before)
-    f.__run__(['sql'])
 
-    after = Clipboard.get_clipboard()
+    after = f.__run__(['sql', before])[1]
 
-    assert before != after
+    assert after == 'SELECT *\nFROM users'
 
 
 def test_xml():
     f = format()
 
     before = "<note><to>Tove</to><from>Jani</from><heading>Reminder</heading><body>Don't forget me this weekend!</body></note>"
-    Clipboard.add_to_clipboard(before)
-    f.__run__(['xml'])
 
-    after = Clipboard.get_clipboard()
+    after = f.__run__(['xml', before])[1]
 
     assert before != after
 
@@ -41,13 +36,29 @@ def test_xml():
 def test_list():
     f = format()
 
+    # standard Excel list
     before = """one
                 two
                 three
                 four"""
-    Clipboard.add_to_clipboard(before)
-    f.__run__(['list'])
+    expected = "('one', 'two', 'three', 'four')"
 
-    after = Clipboard.get_clipboard()
+    after = f.__run__(['list', before])[1]
 
-    assert before != after
+    assert after == expected
+
+    # comma separated list
+    before = """one, two,three, four"""
+    expected = "('one', 'two', 'three', 'four')"
+
+    after = f.__run__(['list', before])[1]
+
+    assert after == expected
+
+    # comma separated list
+    before = """one,two,three,four,,,"""
+    expected = "('one', 'two', 'three', 'four')"
+
+    after = f.__run__(['list', before])[1]
+
+    assert after == expected

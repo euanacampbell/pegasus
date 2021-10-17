@@ -66,11 +66,18 @@ class format:
 
     def format_list(self, to_format):
 
-        to_list = to_format.splitlines()
+        if '\n' in to_format:
+            to_list = to_format.splitlines()
+        elif ',' in to_format:
+            to_list = to_format.split(',')
+        else:
+            to_list = to_format.split(' ')
+
+        to_list = [item.strip() for item in to_list if item.strip() != '']
         formatted = ''
 
         for row in to_list:
-            formatted += f"'{row}',\n"
+            formatted += f"'{row}', "
 
         formatted = formatted[:-2]
         formatted = f"({formatted})"
