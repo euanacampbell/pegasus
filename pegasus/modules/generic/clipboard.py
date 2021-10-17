@@ -4,7 +4,13 @@ import pyperclip
 class Clipboard:
 
     def get_clipboard():
-        return pyperclip.paste()
+        try:
+            return pyperclip.paste()
+        except:
+            pass
 
     def add_to_clipboard(value):
-        pyperclip.copy(value)
+        try:
+            pyperclip.copy(value)
+        except:
+            pass
