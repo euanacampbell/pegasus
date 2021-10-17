@@ -8,20 +8,18 @@ class format:
     'Format json, sql, xml, and sql lists from your clipboard.'
 
     def __init__(self):
-        pass
-
-    def __run__(self, params=None):
-
-        format_type = params[0]
-
-        format_dispatch = {
+        self.format_dispatch = {
             'json': self.format_json,
             'sql': self.format_sql,
             'xml': self.format_xml,
             'list': self.format_list
         }
 
-        if format_type not in format_dispatch:
+    def __run__(self, params=None):
+
+        format_type = params[0]
+
+        if format_type not in self.format_dispatch:
             raise Exception('format not recognised')
 
         if len(params) == 1:
@@ -31,7 +29,7 @@ class format:
 
         return_values = []
         try:
-            formatted = format_dispatch[format_type](c_board)
+            formatted = self.format_dispatch[format_type](c_board)
         except:
             raise Exception(f'unable to format to {format_type}')
 
@@ -88,3 +86,7 @@ class format:
         formatted = f"({formatted})"
 
         return formatted
+
+    def subcommands(self):
+
+        return list(self.format_dispatch.keys())

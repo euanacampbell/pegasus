@@ -1,7 +1,7 @@
 from pegasus.modules.format import format
 from pegasus.modules.sql import sql
 from pegasus.modules.update import update
-from pegasus.modules.test_display import test_display
+from pegasus.modules.example import example
 
 import os
 import sys
@@ -14,7 +14,12 @@ import traceback
 class Pegasus:
 
     def __init__(self):
-        self.result = None
+
+        self.system_commands = {
+            'help': self.help,
+            'exit': self.exit,
+            'clear': self.clear
+        }
 
     def format_input(self, user_input):
         """Takes input from user, separates command and params and returns them"""
@@ -38,15 +43,9 @@ class Pegasus:
         command = formatted_input['command']
         param = formatted_input['param']
 
-        system_commands = {
-            'help': self.help,
-            'exit': self.exit,
-            'clear': self.clear
-        }
-
         # run built-in commands
-        if command in system_commands:
-            result = system_commands[command]()
+        if command in self.system_commands:
+            result = self.system_commands[command]()
             return self.build_return(result)
         try:
             sub_commands_lookup = self.sub_commands()
@@ -78,24 +77,28 @@ class Pegasus:
     def help(self):
 
         help_commands = [['Commands', 'Description']]
+        sys_commands = ', '.join(list(self.system_commands.keys()))
+        help_commands.append(['system', sys_commands])
         for file in self.available_modules():
-            sub = []
 
             # get description
             try:
                 instance = globals()[file]()
                 description = instance.__doc__
+                module_subcommands = []
                 for sub_command in instance.subcommands():
-                    sub.append(
-                        [sub_command, f"Inherited from {file}."])
+                    module_subcommands.append(sub_command)
+
+                module_subcommands_joined = ', '.join(module_subcommands)
             except KeyError:
                 description = f'Error, not imported.'
             except AttributeError:
-                pass
+                module_subcommands_joined = ''
 
             help_commands.append([file, description])
-            if len(sub) > 0:
-                help_commands = help_commands + sub
+            if module_subcommands_joined:
+                help_commands.append(
+                    [f'{file} (sub commands)', module_subcommands_joined])
 
         return [help_commands]
 

@@ -1,6 +1,6 @@
 
-class test_display:
-    'Test different display types'
+class example:
+    """Tagline here for description of the module. Used when running the default 'help' command."""
 
     def __init__(self):
         pass
@@ -27,17 +27,7 @@ class test_display:
 
         return return_all
 
+    def sub_commands(self):
+        """Provide a list of sub-commands that can be called directly without the module code."""
 
-"""
-string
-int
-list of string los 
-list of int loi
-list of list lol
-list of dict lod
-dict of string dos
-dict of int doi
-dict of list dol
-dict of dict  dod
-table
-"""
+        return []
