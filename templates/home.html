@@ -80,7 +80,7 @@
             
             <!-- LIST OF LISTS -->
             {% elif item['type']=='listoflist' %}
-            <div style="width: 100%; min-height: 40%; max-height: 80%; overflow-y: scroll;">
+            <!-- <div style="width: 100%; min-height: 40%; max-height: 80%; overflow-y: scroll;"> -->
             <!-- <div class="scroll shadow mb-2" style="overflow: auto; white-space: nowrap;"> -->
               <table class="table table-bordered shadow p-3 mb-5 bg-white rounded text-center" style="font-size: small;">
                 <tbody>
@@ -92,8 +92,8 @@
                     </tr>
                 {% endfor %}
                 </tbody>
-                </table>
-                </div>
+              </table>
+            <!-- </div> -->
             
             <!-- LIST -->
             {% elif item['type']=='list' %}

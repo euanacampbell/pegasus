@@ -48,7 +48,6 @@ class format:
     def format_json(self, to_format):
 
         parsed = json.loads(to_format)
-
         formatted = json.dumps(parsed, indent=4, sort_keys=True)
 
         return formatted
@@ -69,6 +68,8 @@ class format:
 
     def format_list(self, to_format):
 
+        output_width = 4
+        # find delimiter
         if '\n' in to_format:
             to_list = to_format.splitlines()
         elif ',' in to_format:
@@ -76,13 +77,20 @@ class format:
         else:
             to_list = to_format.split(' ')
 
+        # clean data
         to_list = [item.strip() for item in to_list if item.strip() != '']
-        formatted = ''
 
-        for row in to_list:
+        # build new row
+        formatted = ''
+        for count, row in enumerate(to_list):
             formatted += f"'{row}', "
 
-        formatted = formatted[:-2]
+            # builds a grid instead of a list, easier to read
+            if (count+1) % output_width == 0 and count != 0:
+                formatted += '\n'
+
+        # remove trailing comma and add brackets
+        formatted = formatted[:-3]
         formatted = f"({formatted})"
 
         return formatted

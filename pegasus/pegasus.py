@@ -2,6 +2,7 @@ from pegasus.modules.format import format
 from pegasus.modules.sql import sql
 from pegasus.modules.update import update
 from pegasus.modules.example import example
+from pegasus.modules.connection import connection
 
 import os
 import sys
@@ -76,7 +77,8 @@ class Pegasus:
 
     def help(self):
 
-        help_commands = [['Commands', 'Description']]
+        help_commands = [['Command', 'Description']]
+        sub_commands = [['Command', 'Module']]
 
         sys_commands = ', '.join(list(self.system_commands.keys()))
         help_commands.append([sys_commands, 'System commands.'])
@@ -91,18 +93,19 @@ class Pegasus:
                 for sub_command in instance.subcommands():
                     module_subcommands.append(sub_command)
 
-                module_subcommands_joined = ', '.join(module_subcommands)
+                module_subcommands
             except KeyError:
                 description = f'Error, not imported.'
             except AttributeError:
-                module_subcommands_joined = ''
+                module_subcommands = []
 
             help_commands.append([file, description])
-            if module_subcommands_joined:
-                help_commands.append(
-                    [f'{file} (sub commands)', module_subcommands_joined])
-
-        return [help_commands]
+            if module_subcommands:
+                for c in module_subcommands:
+                    sub_commands.append(
+                        [c, f'{file}'])
+        commands = help_commands
+        return ['Module Commands', commands, 'Module Sub-Commands', sub_commands]
 
     def sub_commands(self):
 
