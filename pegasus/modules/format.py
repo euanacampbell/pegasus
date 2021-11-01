@@ -15,6 +15,8 @@ class format:
             'list': self.format_list
         }
 
+        self.list_output_width = 4
+
     def __run__(self, params=None):
 
         format_type = params[0]
@@ -22,27 +24,29 @@ class format:
         if format_type not in self.format_dispatch:
             raise Exception('format not recognised')
 
+        # use clipboard if no parameter provided
         if len(params) == 1:
             c_board = Clipboard.get_clipboard()
         else:
             c_board = " ".join(params[1:])
 
+        # attempt format
         return_values = []
         try:
             formatted = self.format_dispatch[format_type](c_board)
         except:
             raise Exception(f'unable to format to {format_type}')
 
+        # try to add result to clipboard
         try:
             Clipboard.add_to_clipboard(formatted)
         except:
             return_values.append(
                 f'Unable to add formatted to clipboard.')
 
-        return_values.append(
-            f'Formatted {format_type}.')
-
+        return_values.append(f'Formatted {format_type}.')
         return_values.append(formatted)
+
         return return_values
 
     def format_json(self, to_format):
@@ -68,12 +72,18 @@ class format:
 
     def format_list(self, to_format):
 
-        output_width = 4
         # find delimiter
-        if '\n' in to_format:
-            to_list = to_format.splitlines()
+        if to_format.startswith('(') and to_format.endswith(')'):  # already formatted
+            replace_characters = ['"', "'", '\n', '(', ')']
+
+            for char in replace_characters:
+                to_format = to_format.replace(char, '')
+
+            to_list = to_format.split(',')
         elif ',' in to_format:
             to_list = to_format.split(',')
+        elif '\n' in to_format:
+            to_list = to_format.splitlines()
         else:
             to_list = to_format.split(' ')
 
@@ -86,11 +96,11 @@ class format:
             formatted += f"'{row}', "
 
             # builds a grid instead of a list, easier to read
-            if (count+1) % output_width == 0 and count != 0:
+            if ((count+1) % self.list_output_width == 0) and (count != 0) and (count+1 != len(to_list)):
                 formatted += '\n'
 
-        # remove trailing comma and add brackets
-        formatted = formatted[:-3]
+        # remove trailing space + comma
+        formatted = formatted[:-2]
         formatted = f"({formatted})"
 
         return formatted
