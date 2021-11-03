@@ -70,7 +70,11 @@
                 {% for row in item['content']['results'] %}
                     <tr>
                         {% for col in row %}
-                          <td>{{ col }}</td>
+                          {% if col.startswith('https://') or col.startswith('http://') %}
+                           <td><a href="{{ col }}" target="_blank">{{ col }}</a></td>
+                          {% else%}
+                            <td>{{ col }}</td>
+                          {% endif %}
                         {% endfor %}
                     </tr>
                 {% endfor %}
@@ -80,7 +84,6 @@
             
             <!-- LIST OF LISTS -->
             {% elif item['type']=='listoflist' %}
-            <!-- <div style="width: 100%; min-height: 40%; max-height: 80%; overflow-y: scroll;"> -->
             <!-- <div class="scroll shadow mb-2" style="overflow: auto; white-space: nowrap;"> -->
               <table class="table table-bordered shadow p-3 mb-5 bg-white rounded text-center" style="font-size: small;">
                 <tbody>
@@ -93,7 +96,6 @@
                 {% endfor %}
                 </tbody>
               </table>
-            <!-- </div> -->
             
             <!-- LIST -->
             {% elif item['type']=='list' %}
