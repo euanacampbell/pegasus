@@ -11,7 +11,7 @@ sql_routes = Blueprint('sql_routes', __name__)
 def setup_config():
 
     config_local = sql_config().load_config()
-    config = sql_config().load_config(include_additional=True)
+    config = sql_config().load_config()
 
     # reformat sql to be readable
     for query in config['queries']:
@@ -22,9 +22,8 @@ def setup_config():
             config['queries'][query]['location'] = 'external'
         else:
             config['queries'][query]['location'] = 'local'
-
+    print(config['commands'])
     for command in config['commands']:
-
         if command not in config_local['commands']:
             config['commands'][command]['location'] = 'external'
         else:
@@ -140,9 +139,7 @@ def updatesettings():
 
     enabled_settings = [i for i in request.values]
 
-    additional_config = request.values['additional_config']
-
-    sql_config().update_settings(enabled_settings, additional_config)
+    sql_config().update_settings(enabled_settings)
 
     flash('Settings updated.')
 
@@ -154,19 +151,20 @@ def updatesettings():
 @sql_routes.route('/sql-api/deleteconn/<conn>', methods=['GET', 'POST'])
 def deleteconn(conn):
 
-    sql_config().delete_conn(conn)
-
-    flash('Connection deleted.')
+    try:
+        sql_config().delete_conn(conn)
+        flash('Connection deleted.')
+    except Exception as e:
+        flash(f'{e}')
 
     return redirect(url_for('sql_routes.sql_setup', setting_type='connections'))
 
 
 @sql_routes.route('/sql-api/updateconn', methods=['GET', 'POST'])
 def updateconn():
-    conn_name = str(request.form.get('connName', 0))
 
     conn_setup = {
-        'type': request.form.get('type', 0),
+        'name': request.form.get('connName', 0),
         'type': request.form.get('type', 0),
         'server': request.form.get('server', 0),
         'database': request.form.get('database', 0),
@@ -174,7 +172,7 @@ def updateconn():
         'password': request.form.get('password', 0)
     }
 
-    sql_config().update_conn(conn_name, conn_setup)
+    sql_config().update_conn(conn_setup)
 
     flash('Connection updated.')
 

@@ -120,9 +120,6 @@
             <thead>
               <tr>
                 <th scope="col" class="text-center">name</th>
-                {% if config['settings']['additional_config'] != '' %} 
-                  <th scope="col" class="text-center">config location</th>
-                {% endif %}
                 <th scope="col" class="text-center">connection</th>
                 <th scope="col" class="text-center">query</th>
                 <th scope="col" class="text-center"></th>
@@ -132,9 +129,6 @@
               {% for query in config['queries'] %}
                 <tr> <!--TABLE ROW-->
                 <td style="vertical-align: middle;">{{ query }}</td>
-                {% if config['settings']['additional_config'] != '' %} 
-                  <td style="vertical-align: middle;">{{ config['queries'][query]['location'] }}</td>
-                {% endif %}
                 <td style="vertical-align: middle;">{{ config['queries'][query]['connection'] }}</td>
                 <td><textarea name="query" class="form-control mb-0" style="overflow: auto; margin-bottom: 5px; font-family: 'IBM Plex Mono', monospace; font-size: inherit;" rows="1">{{ config['queries'][query]['query'] }}</textarea></td>
                 <td style="vertical-align: middle;">
@@ -194,15 +188,8 @@
         
 
         {% if setting_type=='settings' %}
-        <p>Toggle settings for using SQL in Pegasus.</p>
         <!-- SETTINGS -->
         <form name="settingsForm" class="shadow p-3 mb-5 bg-white rounded" action="/sql-api/updatesettings" style="padding: 10px; margin-bottom: 15px; margin-top: 15px;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-          <div class="form-check">
-            <input name="auto_format_queries" class="form-check-input" type="checkbox" value="" id="auto_format_queries_check" {% if config['settings']['auto_format_queries']==True %}checked{% endif %}>
-            <label class="form-check-label" for="auto_format_queries_check">
-              auto_format_queries
-            </label>
-          </div>
           <div class="form-check">
             <input name="better_tables" class="form-check-input" type="checkbox" value="" id="better_tables_check" {% if config['settings']['better_tables']==True %}checked{% endif %}>
             <label class="form-check-label" for="better_tables_check">
@@ -215,13 +202,6 @@
             <label class="form-check-label" for="two_columns_check">
               two_columns
             </label>
-          </div>
-          <small id="emailHelp" class="form-text text-muted">Only commands and queries can be loaded from the additional config, missing connections should be added.</small>
-          <div class="input-group mb-2">
-              <div class="input-group-prepend">
-                  <div class="input-group-text">Additional Config</div>
-              </div>
-          <input name="additional_config" type="text" class="form-control" id="additional_config" value="{{ config['settings']['additional_config'] }}" placeholder="{{ config['settings']['additional_config'] }}">
           </div>
     
           <button type="submit" class="btn btn-secondary">Save</button>

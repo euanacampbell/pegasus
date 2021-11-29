@@ -1,23 +1,24 @@
 import pymysql
 import sqlparse
-import yaml
 import pyodbc
 from rich.console import Console
 from rich.table import Table
 from rich import print
-from pegasus.modules.generic.clipboard import Clipboard
+# from pegasus.modules.generic.clipboard import Clipboard
 from tabulate import tabulate
-from pegasus.modules.format import format
+# from pegasus.modules.format import format
 import base64
+import sqlite3
+from pegasus.modules.setup.sql_config import *
 
 
 class sql:
     """Run a predetermined SQL command. Use 'sql help' for available commands."""
 
     def __init__(self):
-        """Checks all contents exist in the yaml file"""
+        """"""
 
-        config = sql_config().load_config(include_additional=True)
+        config = sql_config().load_config()
 
         config_requirements = ['connections',
                                'commands',
@@ -29,12 +30,9 @@ class sql:
             try:
                 setattr(self, section, config[section])
             except KeyError:
-                raise Exception(f"\nmissing '{section}' from sql.yaml file\n")
+                raise Exception(f"\nmissing '{section}' from db file\n")
 
     def __run__(self, params=None):
-
-        if self.settings['auto_format_queries']:
-            sql_config().reformat_yaml()
 
         # check a sql command has been passed
         try:
@@ -47,10 +45,16 @@ class sql:
 
         # module commands
         command_dispatch = {
-            'copy': self.copy_query,
             'view': self.view_queries,
             'help': self.help,
-            'encrypt': self.encrypt}
+            'encrypt': self.encrypt,
+            'delete_conn': sql_config().delete_conn,
+            'add_conn': sql_config().update_conn,
+            'add_query': sql_config().new_query,
+            'delete_query': sql_config().delete_query,
+            'add_command': sql_config().update_command,
+            'delete_command': sql_config().delete_command,
+        }
 
         if sql_command in command_dispatch:
             return command_dispatch[sql_command](sql_param)
@@ -68,7 +72,7 @@ class sql:
             try:
                 queries = self.commands[command]['query_order'].split(', ')
             except KeyError:
-                return [f"'query_order' missing from sql.yaml config for command '{command}'."]
+                return [f"'query_order' missing from db for command '{command}'."]
 
         elif command in self.queries:
             queries = [command]
@@ -165,21 +169,6 @@ class sql:
                     queries.append(self.format_sql(comm.replace('&p', "''")))
 
         return queries
-
-    def copy_query(self, command):
-
-        queries = self.commands[command]['queries']
-        query_needed = 0
-        if len(queries) != 1:
-            self.view_queries(command)
-            query_needed = int(input('\nquery to copy (number): '))-1
-
-        query = self.format_sql(queries[query_needed])
-
-        query = query.replace('&p', "''")
-        Clipboard.add_to_clipboard(query)
-
-        print('\ncopied to clipboard')
 
     def help(self, command):
 
@@ -282,84 +271,33 @@ class SQL_Conn:
 class sql_config:
 
     def __init__(self):
-        pass
+        self.db = Database()
 
-    def load_config(self, location='configs/sql.yaml', include_additional=None, only_additional=None):
-        try:
-            with open(location, 'r') as stream:
-                config = yaml.safe_load(stream)
-        except FileNotFoundError:
-            with open('configs/example_sql.yaml', 'r') as stream:
-                config = yaml.safe_load(stream)
+    def load_config(self):
 
-        if include_additional:
-            try:
-                with open(config['settings']['additional_config'], 'r') as stream:
-                    network_config = yaml.safe_load(stream)
-
-                config['queries'] = {
-                    **config['queries'],
-                    **network_config['queries']}
-                config['commands'] = {
-                    **config['commands'],
-                    **network_config['commands']}
-            except FileNotFoundError:
-                pass
-        elif only_additional:
-            with open(config['settings']['additional_config'], 'r') as stream:
-                config = yaml.safe_load(stream)
+        config = {
+            'settings': self.get_settings(),
+            'connections': self.get_all_connections(),
+            'commands': self.get_commands(),
+            'queries': self.get_queries(),
+        }
 
         return config
 
-    def update_config(self, new_config):
-
-        with open('configs/sql.yaml', 'w') as f:
-            yaml.dump(new_config, f, width=2000)
-
-    def reformat_yaml(self):
-        """Converts any multi-line sql commands into a single line to make the config more readable"""
-
-        doc = self.load_config()
-
-        queries = doc['queries']
-        for query in queries:
-
-            formatted_query = query.replace('\n', '')
-
-            doc['queries'][query]['query'] = formatted_query
-
-        self.update_config(doc)
-
     def new_query(self, query_command, connection, query):
 
-        config = self.load_config()
+        self.db.run('add_query', params=(query_command, connection, query))
 
-        config['queries'][query_command] = {
-            'query': query,
-            'connection': connection
-        }
+    def delete_query(self, query_name):
 
-        self.update_config(config)
+        self.db.run('delete_query', params=(query_name))
+        self.db.run('delete_query_from_command', params=(query_name))
 
-    def delete_query(self, query):
+    def update_settings(self, enabled_settings):
 
         config = self.load_config()
 
-        del config['queries'][query]
-
-        for command in config['commands']:
-            if query in config['commands'][command]['queries']:
-                config['commands'][command]['queries'].remove(query)
-
-        self.update_config(config)
-
-    def update_settings(self, enabled_settings, additional_config):
-
-        config = self.load_config()
-
-        skip = ['queries', 'commands', 'connections', 'additional_config']
-
-        config['settings']['additional_config'] = additional_config
+        skip = ['queries', 'commands', 'connections']
 
         for item in config['settings']:
             if item not in skip:
@@ -368,30 +306,99 @@ class sql_config:
                 else:
                     config['settings'][item] = False
 
-        self.update_config(config)
+    def delete_conn(self, conn, check_queries=True):
 
-    def delete_conn(self, conn):
+        # check_queries is used to check if any queries are using this connection
+        if check_queries:
+            queries = self.db.run('get_all_queries')
+            for query in queries:
+                if query[2] == conn:
+                    raise Exception(
+                        'Connection is still in use, remove from all queries before trying again.')
 
-        config = self.load_config()
+        self.db.run('delete_connection', params=conn)
 
-        del config['connections'][conn]
+        return f'connection {conn} deleted'
 
-        self.update_config(config)
+    def update_conn(self, connection):
 
-    def update_conn(self, connection_name, connection_details):
+        self.delete_conn(connection['name'], check_queries=False)
 
-        config = self.load_config()
+        connection['password'] = base64.b64encode(
+            connection['password'].encode("utf-8"))
 
-        connection_details['password'] = base64.b64encode(
-            connection_details['password'].encode("utf-8"))
+        self.db.run('add_connection', params=(
+            connection['name'], connection['server'], connection['database'], connection['type'], connection['username'], connection['password']))
 
-        config['connections'][connection_name] = connection_details
+    def get_all_connections(self):
 
-        self.update_config(config)
+        all_conns = self.db.run('get_all_connections')
+
+        conns = {}
+
+        for conn in all_conns:
+            conns[conn[1]] = {
+                'server': conn[2],
+                'database': conn[3],
+                'type': conn[4],
+                'username': conn[5],
+                'password': conn[6]
+            }
+
+        return conns
+
+    def get_settings(self):
+
+        settings = self.db.run('get_all_settings')
+
+        return_settings = {}
+
+        for setting in settings:
+            if setting[2].lower() == 'false':
+                value = False
+            elif setting[2].lower() == 'true':
+                value = True
+            else:
+                value = setting[2]
+
+            return_settings[setting[1]] = value
+
+        return return_settings
+
+    def get_commands(self):
+        commands = self.db.run('get_all_commands')
+
+        unique_commands = list(set([com[1] for com in commands]))
+
+        return_commands = {}
+
+        for unique_command in unique_commands:
+            queries = []
+            for command in commands:
+                if command[1] == unique_command:
+                    queries.append(command[2])
+            return_commands[unique_command] = {
+                'queries': queries,
+                'query_order': ', '.join(queries)
+            }
+
+        return return_commands
+
+    def get_queries(self):
+
+        queries = self.db.run('get_all_queries')
+
+        return_queries = {}
+
+        for query in queries:
+            return_queries[query[1]] = {
+                'connection': query[2],
+                'query': query[3],
+            }
+
+        return return_queries
 
     def update_command(self, command_name, queries, query_order):
-
-        config = self.load_config()
 
         query_order = query_order.split(", ")
 
@@ -401,17 +408,55 @@ class sql_config:
             if query not in query_order:
                 query_order.append(query)
 
-        query_order = ', '.join(query_order)
+        self.db.run('delete_command', params=command_name)
 
-        config['commands'][command_name] = {'queries': queries,
-                                            'query_order': query_order}
-
-        self.update_config(config)
+        for count, query in enumerate(query_order):
+            self.db.run('add_command', params=(command_name, query, count))
 
     def delete_command(self, command_name):
 
-        config = self.load_config()
+        self.db.run('delete_command', params=(command_name))
 
-        del config['commands'][command_name]
 
-        self.update_config(config)
+class Database:
+
+    def __init__(self):
+
+        try:
+            self.run_query(
+                f"SELECT * FROM Connections", ())
+        except:
+            print('no sql config setup, building now.')
+            self.setup_db()
+
+    def run(self, query_name, params=()):
+
+        query = QUERIES_LOOKUP[query_name]
+
+        if type(params) == str:
+            params = tuple([params])
+
+        return self.run_query(query, params)
+
+    def run_query(self, query, params):
+
+        connection = sqlite3.connect("sql.db")
+        cursor = connection.cursor()
+
+        rows = cursor.execute(query, params).fetchall()
+
+        connection.commit()
+
+        return rows
+
+    def setup_db(self):
+
+        for query in SETUP_QUERIES:
+            self.run_query(query, ())
+
+
+if __name__ == "__main__":
+
+    sql = sql_config()
+
+    print(sql.load_config())
