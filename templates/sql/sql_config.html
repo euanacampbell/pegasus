@@ -101,7 +101,7 @@
                 <td ><input name="server" value="{{ config['connections'][conn]['server'] }}" type="text" class="form-control mb-0" aria-describedby="basic-addon3" style="font-size: inherit;"></td>
                 <td><input name="database" value="{{ config['connections'][conn]['database'] }}" type="text" class="form-control mb-0" aria-describedby="basic-addon3" style="font-size: inherit;"></td>
                 <td><input name="username" value="{{ config['connections'][conn]['username'] }}" type="text" class="form-control mb-0" aria-describedby="basic-addon3" style="font-size: inherit;"></td>
-                <td><input name="password" value="shh no peeking" type="password" class="form-control mb-0" aria-describedby="basic-addon3" style="font-size: inherit;"></td>
+                <td><input name="password" value="{% if config['connections'][conn]['password']|length>0 %}shh no peeking{% else %}{% endif %}" type="password" class="form-control mb-0" aria-describedby="basic-addon3" style="font-size: inherit;"></td>
                 <td style="vertical-align: middle;"><button type="submit" class="btn btn-secondary"><i class="fa fa-save"></i></button></td>
                 <td style="vertical-align: middle;"><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{conn}}Modal"><i class="fa fa-trash-o"></i></button></td>
               </tr><!--TABLE ROW-->

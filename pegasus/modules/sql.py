@@ -9,6 +9,7 @@ from pegasus.modules.generic.clipboard import Clipboard
 from tabulate import tabulate
 from pegasus.modules.format import format
 import base64
+import time
 
 
 class sql:
@@ -89,12 +90,13 @@ class sql:
                     f"Connection '{missing_connection}' does not exist.")
                 continue
 
+            begin = time.time()
             results = SQL_Conn().run_query(connection_details,
                                            query_details['query'], param)
-
+            time_taken = round(time.time()-begin, 2)
             query_results = {
                 'results': results['results'],
-                'columns': results['columns']
+                'columns': results['columns'],
             }
 
             prev_conn = self.queries[queries[index-1]]['connection']
@@ -117,7 +119,7 @@ class sql:
             if self.settings['two_columns']:
                 all_results.append(f"%start_column%")
 
-            all_results.append(query)
+            all_results.append(f'{query} ({time_taken}s)')
             all_results.append(query_results)
 
             if self.settings['two_columns']:
