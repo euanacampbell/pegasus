@@ -66,7 +66,7 @@ class sql:
 
         if command in self.commands:
             try:
-                queries = self.commands[command]['query_order'].split(', ')
+                queries = self.commands[command]['queries']
             except KeyError:
                 return [f"'query_order' missing from sql.yaml config for command '{command}'."]
 
@@ -374,6 +374,11 @@ class sql_config:
 
         config = self.load_config()
 
+        for query in config['queries']:
+            if config['queries'][query]['connection'] == conn:
+                raise Exception(
+                    '(ERROR) Connection is still in use by one or more queries.')
+
         del config['connections'][conn]
 
         self.update_config(config)
@@ -392,19 +397,22 @@ class sql_config:
     def update_command(self, command_name, queries, query_order):
 
         config = self.load_config()
+        print(query_order)
 
-        query_order = query_order.split(", ")
+        query_order = query_order.split(",")
+        print(query_order)
 
         query_order = [query.strip()
                        for query in query_order if query.strip() in queries]
+        print(query_order)
+
         for query in queries:
             if query not in query_order:
                 query_order.append(query)
 
-        query_order = ', '.join(query_order)
+        print(query_order)
 
-        config['commands'][command_name] = {'queries': queries,
-                                            'query_order': query_order}
+        config['commands'][command_name] = {'queries': query_order}
 
         self.update_config(config)
 

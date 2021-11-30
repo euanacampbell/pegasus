@@ -1,9 +1,10 @@
 from platform import version
 from pegasus.pegasus import Pegasus
 from pegasus.modules.update import update
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file
 from pegasus.modules.sql import sql_config, SQL_Conn
 from pegasus.modules.format import format
+import os
 
 sql_routes = Blueprint('sql_routes', __name__)
 
@@ -54,6 +55,15 @@ def sql_creator():
 def sql_default():
 
     return redirect(url_for('sql_routes.sql_setup', setting_type='queries', message=None))
+
+
+@sql_routes.route('/sql-api/download')
+def sql_download():
+
+    dir_path = os.getcwd()
+
+    path = f"{dir_path}/configs/sql.yaml"
+    return send_file(path, as_attachment=True)
 
 
 @sql_routes.route('/sqlsetup/<setting_type>')
@@ -153,10 +163,11 @@ def updatesettings():
 
 @sql_routes.route('/sql-api/deleteconn/<conn>', methods=['GET', 'POST'])
 def deleteconn(conn):
-
-    sql_config().delete_conn(conn)
-
-    flash('Connection deleted.')
+    try:
+        sql_config().delete_conn(conn)
+        flash(f'Connection ({conn}) deleted.')
+    except Exception as e:
+        flash(str(e))
 
     return redirect(url_for('sql_routes.sql_setup', setting_type='connections'))
 

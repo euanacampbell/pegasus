@@ -5,29 +5,24 @@ commands:
     - emp_limit
     - employees
     - employees_network
-    query_order: employees_network, employees, emp_limit_2, emp_limit
   emp_search:
     queries:
     - employees
     - emp_limit
-    query_order: employees, emp_limit
   test_command:
     queries:
     - emp_limit_2
     - employees_network
     - emp_limit
-    query_order: emp_limit_2, employees_network, emp_limit
   test_one:
     queries:
     - employees
     - emp_limit_2_network
     - emp_limit_2
-    query_order: employees, emp_limit_2_network, emp_limit_2
   test_two:
     queries:
     - emp_search
     - emp_limit
-    query_order: emp_limit, emp_search
 connections:
   an_azure_server:
     database: db_name

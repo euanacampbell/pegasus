@@ -85,7 +85,7 @@
             </div>
             <div class="form-group">
                 <label>Query order</label>
-                <textarea name="query_order" class="form-control" style="overflow: auto;" rows="5">{{ config['commands'][command]['query_order'] }}</textarea>
+                <textarea name="query_order" class="form-control" style="overflow: auto;" rows="5">{{ ', '.join(config['commands'][command]['queries']) }}</textarea>
                 <small class="form-text text-muted">Comma separate the order of the queries.</small>
             </div>
             
