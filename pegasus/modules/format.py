@@ -72,9 +72,21 @@ class format:
 
     def format_list(self, to_format):
 
+        default_bracket = '()'
+
+        if to_format in ['[', ']']:
+            to_format = '[]'
+        elif to_format in ['(', ')']:
+            to_format = '()'
+
+        if to_format in ['()', '[]']:
+            default_bracket = to_format
+            to_format = Clipboard.get_clipboard()
+
         # find delimiter
-        if to_format.startswith('(') and to_format.endswith(')'):  # already formatted
-            replace_characters = ['"', "'", '\n', '(', ')']
+        # already formatted
+        if (to_format.startswith('(') and to_format.endswith(')')) or (to_format.startswith('[') and to_format.endswith(']')):
+            replace_characters = ['"', "'", '\n', '(', ')', '[', ']']
 
             for char in replace_characters:
                 to_format = to_format.replace(char, '')
@@ -101,7 +113,7 @@ class format:
 
         # remove trailing space + comma
         formatted = formatted[:-2]
-        formatted = f"({formatted})"
+        formatted = f"{default_bracket[0]}{formatted}{default_bracket[1]}"
 
         return formatted
 

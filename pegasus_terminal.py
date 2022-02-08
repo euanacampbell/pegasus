@@ -47,7 +47,7 @@ while True:
 
         if item['type'] in ('string', 'int', 'error'):
 
-            content = item['content']
+            content = str(item['content'])
 
             for i in ['%end_border%', '%end_row%', '%start_border%', '%start_row%', '%header%']:
                 content = content.replace(i, '')
