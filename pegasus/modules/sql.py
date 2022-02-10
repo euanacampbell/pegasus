@@ -91,19 +91,14 @@ class sql:
                 continue
 
             begin = time.time()
-            results = SQL_Conn().run_query(connection_details,
-                                           query_details['query'], param)
+            query_results = SQL_Conn().run_query(connection_details,
+                                                 query_details['query'], param)
             time_taken = round(time.time()-begin, 2)
-            query_results = {
-                'results': results['results'],
-                'columns': results['columns'],
-            }
 
             prev_conn = self.queries[queries[index-1]]['connection']
             curr_conn = query_details['connection']
 
             if curr_conn != prev_conn:
-
                 if border_started == True:
                     all_results.append(f"%end_border%")
                 all_results.append(f"%start_border%")
@@ -119,7 +114,18 @@ class sql:
             if self.settings['two_columns']:
                 all_results.append(f"%start_column%")
 
-            all_results.append(f'{query} ({time_taken}s)')
+            details_tmp = query_details['connection']
+
+            num_rows = len(query_results['results'])
+            plural = 's'
+            if num_rows == 1:
+                plural = ''
+            # all_results.append(
+            #     f'{num_rows} row{plural} loaded in {time_taken}s')
+
+            all_results.append(
+                f'{ query } | {num_rows} row{plural} | {time_taken}s')
+
             all_results.append(query_results)
 
             if self.settings['two_columns']:
@@ -399,20 +405,15 @@ class sql_config:
     def update_command(self, command_name, queries, query_order):
 
         config = self.load_config()
-        print(query_order)
 
         query_order = query_order.split(",")
-        print(query_order)
 
         query_order = [query.strip()
                        for query in query_order if query.strip() in queries]
-        print(query_order)
 
         for query in queries:
             if query not in query_order:
                 query_order.append(query)
-
-        print(query_order)
 
         config['commands'][command_name] = {'queries': query_order}
 
