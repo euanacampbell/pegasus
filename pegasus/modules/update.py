@@ -10,7 +10,7 @@ class update:
     """Check if you're running the latest version and update to the latest release."""
 
     def __init__(self):
-        self.__VERSION__ = 'v0.17'
+        self.__VERSION__ = 'v0.18'
 
         self.download_url = 'https://github.com/euanacampbell/pegasus/archive/refs/heads/main.zip'
 
