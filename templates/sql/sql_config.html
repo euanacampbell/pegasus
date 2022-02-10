@@ -24,6 +24,10 @@
             {% endfor %}
           {% endif %}
         {% endwith %}
+      
+      <div id="copy_alert" class="alert alert-info alert-dismissible fade show mt-2" role="alert" hidden>
+        text copied
+      </div>
 
 
 
@@ -143,6 +147,7 @@
                 <td><textarea name="query" class="form-control mb-0" style="overflow: auto; margin-bottom: 5px; font-family: 'IBM Plex Mono', monospace; font-size: inherit;" rows="1">{{ config['queries'][query]['query'] }}</textarea></td>
                 <td style="vertical-align: middle;">
                   <button type="button" class="btn btn-success" onclick="location.href='/{{ query }}'"><i class="fa fa-external-link"></i></button>
+                  <button type="button" class="btn btn-secondary" onclick="copy_query('{{ config['queries'][query]['query'] | replace("\n", " ") }}')"><i class="fa fa-solid fa-copy"></i></button>
                   <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#edit{{ query }}Modal" {% if config['queries'][query]['location'] == 'external' %}disabled{% endif %}><i class="fa fa-edit"></i></button>
                   <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{query}}Modal" {% if config['queries'][query]['location'] == 'external' %}disabled{% endif %}><i class="fa fa-trash-o"></i></button>
                 </td>
@@ -250,6 +255,19 @@
 
     <!-- command modals -->
     {% include 'sql/modals/command_modals.html' %}
+    <script>
+    function copy_query(query) {
+      /* Select the text field */
+
+      var $temp = $("<input>");
+      $("body").append($temp);
+      $temp.val(query).select();
+      document.execCommand("copy");
+      $temp.remove();
+
+      var x = document.getElementById("copy_alert").removeAttribute("hidden");
+    }
+    </script>
 
   </body>
   <footer>
