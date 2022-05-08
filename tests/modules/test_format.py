@@ -1,4 +1,4 @@
-from pegasus.modules.format import format
+from pegasus_client.default_modules.format import module as format
 
 
 def test_json():

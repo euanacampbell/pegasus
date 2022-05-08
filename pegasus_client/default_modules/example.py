@@ -1,5 +1,5 @@
 
-class example:
+class module:
     """Tagline here for description of the module. Used when running the default 'help' command."""
 
     def __init__(self):

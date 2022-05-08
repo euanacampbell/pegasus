@@ -2,7 +2,7 @@ import requests
 import datetime
 
 
-class connection:
+class module:
     'Check that an internet connection exists.'
 
     def __init__(self):

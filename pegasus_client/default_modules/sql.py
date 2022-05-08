@@ -5,14 +5,14 @@ import pyodbc
 from rich.console import Console
 from rich.table import Table
 from rich import print
-from pegasus.modules.generic.clipboard import Clipboard
+from pegasus_client.default_modules.generic.clipboard import Clipboard
 from tabulate import tabulate
-from pegasus.modules.format import format
+from pegasus_client.default_modules.format import module as format
 import base64
 import time
 
 
-class sql:
+class module:
     """Run a predetermined SQL command. Use 'sql help' for available commands."""
 
     def __init__(self):
@@ -192,6 +192,7 @@ class sql:
     def help(self, command):
 
         commands = [command for command in self.commands]
+        print(commands)
         queries = [query for query in self.queries]
 
         return ['commands', commands, 'queries', queries]
@@ -292,13 +293,26 @@ class sql_config:
     def __init__(self):
         pass
 
-    def load_config(self, location='configs/sql.yaml', include_additional=None, only_additional=None):
+    def load_config(self, location='sql.yaml', include_additional=None, only_additional=None):
         try:
             with open(location, 'r') as stream:
                 config = yaml.safe_load(stream)
         except FileNotFoundError:
-            with open('configs/example_sql.yaml', 'r') as stream:
-                config = yaml.safe_load(stream)
+            open("sql.yaml", "x")
+            new_config = {
+                'commands': {},
+                'connections': {},
+                'queries': {},
+                'settings': {
+                    'additional_config': '',
+                    'auto_format_queries': False,
+                    'better_tables': False,
+                    'settings': False,
+                    'two_columns': False,
+                }
+            }
+            with open('sql.yaml', 'w') as f:
+                yaml.dump(new_config, f, width=2000)
 
         if include_additional:
             try:
@@ -321,7 +335,7 @@ class sql_config:
 
     def update_config(self, new_config):
 
-        with open('configs/sql.yaml', 'w') as f:
+        with open('sql.yaml', 'w') as f:
             yaml.dump(new_config, f, width=2000)
 
     def reformat_yaml(self):

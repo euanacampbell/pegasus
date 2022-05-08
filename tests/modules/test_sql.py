@@ -1,4 +1,4 @@
-from pegasus.modules.sql import sql, sql_config
+from pegasus_client.default_modules.sql import sql, sql_config
 
 # CONFIG TESTS
 

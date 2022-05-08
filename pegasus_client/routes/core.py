@@ -1,6 +1,6 @@
 from platform import version
-from pegasus.pegasus import Pegasus
-from pegasus.modules.update import update
+from pegasus_client.pegasus_handler import Pegasus
+from pegasus_client.default_modules.update import module as update
 from flask import Blueprint, render_template, request, redirect, url_for
 
 core_routes = Blueprint('core_routes', __name__)
@@ -11,8 +11,6 @@ pegasus = Pegasus()
 def home():
 
     commands = pegasus.run_command('help')['response']
-
-    print(commands)
 
     return render_template('home.html', info=None, version=update().__VERSION__, commands=commands)
 

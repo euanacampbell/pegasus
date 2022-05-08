@@ -1,9 +1,9 @@
 from platform import version
-from pegasus.pegasus import Pegasus
-from pegasus.modules.update import update
+from pegasus_client.pegasus_handler import Pegasus
+from pegasus_client.default_modules.update import module as update
+from pegasus_client.default_modules.format import module as format
 from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file
-from pegasus.modules.sql import sql_config, SQL_Conn
-from pegasus.modules.format import format
+from pegasus_client.default_modules.sql import sql_config, SQL_Conn
 import os
 
 sql_routes = Blueprint('sql_routes', __name__)
@@ -62,7 +62,7 @@ def sql_download():
 
     dir_path = os.getcwd()
 
-    path = f"{dir_path}/configs/sql.yaml"
+    path = f"{dir_path}/sql.yaml"
     return send_file(path, as_attachment=True)
 
 

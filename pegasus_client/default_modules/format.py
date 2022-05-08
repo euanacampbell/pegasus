@@ -1,10 +1,10 @@
 import sqlparse
 import json
 import xml.dom.minidom
-from pegasus.modules.generic.clipboard import Clipboard
+from pegasus_client.default_modules.generic.clipboard import Clipboard
 
 
-class format:
+class module:
     'Format json, sql, xml, and sql lists from your clipboard.'
 
     def __init__(self):
@@ -16,6 +16,8 @@ class format:
         }
 
         self.list_output_width = 4
+
+        self.list_length = 0
 
     def __run__(self, params=None):
 
@@ -44,7 +46,13 @@ class format:
             return_values.append(
                 f'Unable to add formatted to clipboard.')
 
-        return_values.append(f'Formatted {format_type}.')
+        # add list length
+        if format_type == 'list':
+            return_values.append(
+                f'Formatted {format_type}. {self.list_length}')
+        else:
+            return_values.append(f'Formatted {format_type}.')
+
         return_values.append(formatted)
 
         return return_values
@@ -101,6 +109,7 @@ class format:
 
         # clean data
         to_list = [item.strip() for item in to_list if item.strip() != '']
+        self.list_length = len(to_list)
 
         # build new row
         formatted = ''
