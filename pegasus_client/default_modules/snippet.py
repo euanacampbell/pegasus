@@ -54,10 +54,3 @@ class module:
     def subcommands(self):
 
         return list(self.format_dispatch.keys())
-
-
-if __name__ == '__main__':
-
-    s = snippet()
-
-    s.__run__(['csv'])
