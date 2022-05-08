@@ -17,7 +17,7 @@ with open('example.txt') as csv_file:
 '''csv'''
 
 '''pandas'''
-for i in loop:
+for i in range(1, 10):
     print(i)
 '''pandas'''
 
