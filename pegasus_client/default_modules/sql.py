@@ -238,13 +238,24 @@ class SQL_Conn:
 
     def run_query(self, conn, query, param=None):
         results = {}
-        self.get_connection(conn)
+        params = []
+        try:
+            self.get_connection(conn)
+        except Exception as e:
+            return {
+                'results': [[str(e)]],
+                'columns': []
+            }
 
         with self.connection:
             with self.connection.cursor() as cursor:
                 if '&p' in query:
                     if not param:
-                        raise ValueError('Missing query parameter')
+                        # raise ValueError('Missing query parameter')
+                        return {
+                            'results': [['Error: Missing query parameter']],
+                            'columns': []
+                        }
 
                     marker_lookup = {
                         'sqlserver': '?',
@@ -253,10 +264,13 @@ class SQL_Conn:
                     }
                     params = [param for i in range(0, query.count('&p'))]
                     query = query.replace('&p', marker_lookup[self.type])
-
+                try:
                     cursor.execute(query, params)
-                else:
-                    cursor.execute(query)
+                except Exception as e:
+                    return {
+                        'results': [[e]],
+                        'columns': []
+                    }
 
                 content = cursor.fetchall()
                 if self.type == 'mysql':
