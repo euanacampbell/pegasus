@@ -10,6 +10,7 @@ from tabulate import tabulate
 from pegasus_client.default_modules.format import module as format
 import base64
 import time
+import datetime
 
 
 class module:
@@ -120,11 +121,11 @@ class module:
             plural = 's'
             if num_rows == 1:
                 plural = ''
-            # all_results.append(
-            #     f'{num_rows} row{plural} loaded in {time_taken}s')
+
+            now = datetime.datetime.now().strftime("%H:%M:%S")
 
             all_results.append(
-                f'{ query } | {num_rows} row{plural} | {time_taken}s')
+                f'{ query } | {num_rows} row{plural} | {time_taken}s | {now}')
 
             all_results.append(query_results)
 
@@ -229,7 +230,7 @@ class SQL_Conn:
             password = base64.b64decode(conn['password']).decode("utf-8")
             driver = '{ODBC Driver 17 for SQL Server}'
             connection = f'DRIVER={driver};SERVER=tcp:{server};PORT=1433;DATABASE={database};UID={username};PWD={{' + \
-                password + '};Authentication=ActiveDirectoryPassword'
+                password + '};Authentication=ActiveDirectoryPassword;Trusted_Connection=yes;'
             self.connection = pyodbc.connect(connection)
             self.connection.add_output_converter(-155, str)
         else:
@@ -346,7 +347,7 @@ class sql_config:
         queries = doc['queries']
         for query in queries:
 
-            formatted_query = query.replace('\n', '')
+            formatted_query = queries[query]['query'].replace('\n', '')
 
             doc['queries'][query]['query'] = formatted_query
 
