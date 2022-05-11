@@ -11,7 +11,7 @@ setup(
     name='pegasus_client',
     packages=['pegasus_client', 'pegasus_client.routes',
               'pegasus_client.default_modules', 'pegasus_client.default_modules.generic'],
-    version='0.14',
+    version='0.15',
     license='MIT',
     description='Command-line and web tool with modular interface.',
     long_description=long_description,
