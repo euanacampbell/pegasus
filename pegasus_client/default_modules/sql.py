@@ -230,7 +230,7 @@ class SQL_Conn:
             password = base64.b64decode(conn['password']).decode("utf-8")
             driver = '{ODBC Driver 17 for SQL Server}'
             connection = f'DRIVER={driver};SERVER=tcp:{server};PORT=1433;DATABASE={database};UID={username};PWD={{' + \
-                password + '};Authentication=ActiveDirectoryPassword;Trusted_Connection=yes;'
+                password + '};Authentication=ActiveDirectoryPassword;Encrypt=yes;TrustServerCertificate=YES'
             self.connection = pyodbc.connect(connection)
             self.connection.add_output_converter(-155, str)
         else:
