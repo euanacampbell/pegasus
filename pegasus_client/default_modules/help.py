@@ -1,4 +1,4 @@
-from pegasus_client.pegasus_handler import Pegasus
+from pegasus_client.pegasus_handler import PegasusHandler
 
 
 class module:
@@ -10,7 +10,7 @@ class module:
 
     def __run__(self, params=None):
 
-        p = Pegasus()
+        p = PegasusHandler()
 
         help_commands = [['Command', 'Description']]
         sub_commands = [['Command', 'Module']]

@@ -1,5 +1,6 @@
 
-from pegasus_client.pegasus_handler import Pegasus
+from cProfile import run
+from pegasus_client.pegasus_handler import PegasusHandler
 
 from rich.console import Console
 from rich.table import Table
@@ -12,28 +13,30 @@ from pegasus_client.routes.core import core_routes
 from pegasus_client.routes.error_handling import error_routes
 
 
-class web:
+class Pegasus:
 
-    def __init__(self, port_number=7342):
+    def __init__(self, run_type='web', sql_config_location='', port_number=7342):
 
-        self.port_number = port_number
+        if run_type == 'web':
+            self.run_web(port_number)
+        elif run_type == 'terminal':
+            self.run_terminal()
+        else:
+            print('run type not recognised')
 
-    def start(self):
+    def run_web(self, port_number):
 
         #  initialise flask
         app = Flask(__name__)
         app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
+        # import blueprint routes
         app.register_blueprint(sql_routes)
         app.register_blueprint(core_routes)
         app.register_blueprint(error_routes)
 
-        app.run(host='127.0.0.1', port=self.port_number)
-
-
-class terminal:
-
-    def __init__(self):
-        pass
+        # start it up!
+        app.run(host='127.0.0.1', port=port_number)
 
     def print_table(self, body, columns=None, better_tables=False):
 
@@ -58,7 +61,7 @@ class terminal:
             else:
                 print(tabulate(body, tablefmt="pretty"))
 
-    def start(self):
+    def run_terminal(self):
 
         better_tables = False
 
@@ -71,7 +74,7 @@ class terminal:
                 print(f'\nTable formatting now set to {better_tables}')
                 continue
 
-            response = Pegasus().run_command(text_input)
+            response = PegasusHandler().run_command(text_input)
 
             for item in response['response']:
 
@@ -100,3 +103,11 @@ class terminal:
                 else:
                     item_type = item['type']
                     print(f'{item_type} not recognised')
+
+
+class options:
+
+    def __init__(self):
+
+        self.run_type = run_type
+        self.sql_config_location = sql_config_location

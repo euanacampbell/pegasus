@@ -11,6 +11,7 @@ from pegasus_client.default_modules.format import module as format
 import base64
 import time
 import datetime
+import traceback
 
 
 class module:
@@ -24,6 +25,7 @@ class module:
         config_requirements = ['connections',
                                'commands',
                                'queries',
+                               'credentials',
                                'settings']
 
         # check correct sections exist in config
@@ -92,8 +94,21 @@ class module:
                 continue
 
             begin = time.time()
+
+            if connection_details['credential'] != 'windows':
+                try:
+                    credential = sql_config().load_config(
+                    )['credentials'][connection_details['credential']]
+                except KeyError:
+                    raise Exception(
+                        f"Credential {connection_details['credential']} is missing, please create a new one.")
+            else:
+                credential = {
+                    'username': 'windows',
+                    'password': base64.b64encode('windows'.encode("utf-8"))
+                }
             query_results = SQL_Conn().run_query(connection_details,
-                                                 query_details['query'], param)
+                                                 query_details['query'], param, credential)
             time_taken = round(time.time()-begin, 2)
 
             prev_conn = self.queries[queries[index-1]]['connection']
@@ -114,8 +129,6 @@ class module:
 
             if self.settings['two_columns']:
                 all_results.append(f"%start_column%")
-
-            details_tmp = query_details['connection']
 
             num_rows = len(query_results['results'])
             plural = 's'
@@ -193,7 +206,7 @@ class module:
     def help(self, command):
 
         commands = [command for command in self.commands]
-        print(commands)
+
         queries = [query for query in self.queries]
 
         return ['commands', commands, 'queries', queries]
@@ -207,43 +220,48 @@ class module:
 
 class SQL_Conn:
 
-    def get_connection(self, conn):
+    def get_connection(self, conn, credentials):
+
         self.type = conn['type']
 
         server = conn['server']
         database = conn['database']
+        username = credentials['username']
+        password = base64.b64decode(credentials['password']).decode("utf-8")
         if self.type == 'mysql':
             self.get_tables = 'SHOW TABLES;'
-            self.connection = pymysql.connect(host=conn['server'],
-                                              user=conn['username'],
-                                              password=base64.b64decode(
-                                                  conn['password']).decode("utf-8"),
-                                              database=conn['database'],
+            self.connection = pymysql.connect(host=server,
+                                              user=username,
+                                              password=password,
+                                              database=database,
                                               cursorclass=pymysql.cursors.DictCursor)
+
         elif self.type == 'sqlserver':
             self.get_tables = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'"
             self.connection = pyodbc.connect(
                 f'DRIVER=SQL Server; SERVER={server}; DATABASE={database};Trusted_Connection=yes;')
+
         elif self.type == 'azure':
             self.get_tables = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'"
-            username = conn['username']
-            password = base64.b64decode(conn['password']).decode("utf-8")
             driver = '{ODBC Driver 17 for SQL Server}'
             connection = f'DRIVER={driver};SERVER=tcp:{server};PORT=1433;DATABASE={database};UID={username};PWD={{' + \
                 password + '};Authentication=ActiveDirectoryPassword;Encrypt=yes;TrustServerCertificate=YES'
             self.connection = pyodbc.connect(connection)
             self.connection.add_output_converter(-155, str)
+
         else:
             raise Exception(f"type {self.type} not recognised")
 
-    def run_query(self, conn, query, param=None):
+    def run_query(self, conn, query, param=None, credentials=None):
+
         results = {}
         params = []
         try:
-            self.get_connection(conn)
+            self.get_connection(conn, credentials)
         except Exception as e:
+
             return {
-                'results': [[str(e)]],
+                'results': [[traceback.format_exc()]],
                 'columns': []
             }
 
@@ -268,7 +286,7 @@ class SQL_Conn:
                     cursor.execute(query, params)
                 except Exception as e:
                     return {
-                        'results': [[e]],
+                        'results': [[traceback.format_exc()]],
                         'columns': []
                     }
 
@@ -318,6 +336,7 @@ class sql_config:
                 'commands': {},
                 'connections': {},
                 'queries': {},
+                'credentials': {},
                 'settings': {
                     'additional_config': '',
                     'auto_format_queries': False,
@@ -394,7 +413,8 @@ class sql_config:
 
         config = self.load_config()
 
-        skip = ['queries', 'commands', 'connections', 'additional_config']
+        skip = ['queries', 'commands', 'connections',
+                'credentials', 'additional_config']
 
         config['settings']['additional_config'] = additional_config
 
@@ -424,9 +444,6 @@ class sql_config:
 
         config = self.load_config()
 
-        connection_details['password'] = base64.b64encode(
-            connection_details['password'].encode("utf-8"))
-
         config['connections'][connection_name] = connection_details
 
         self.update_config(config)
@@ -453,5 +470,22 @@ class sql_config:
         config = self.load_config()
 
         del config['commands'][command_name]
+
+        self.update_config(config)
+
+    def delete_cred(self, cred_name):
+
+        config = self.load_config()
+
+        del config['credentials'][cred_name]
+
+        self.update_config(config)
+
+    def update_cred(self, cred_name, username, password):
+
+        config = self.load_config()
+
+        config['credentials'][cred_name] = {
+            'username': username, 'password': base64.b64encode(password.encode("utf-8"))}
 
         self.update_config(config)

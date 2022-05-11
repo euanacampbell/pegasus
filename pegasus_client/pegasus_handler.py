@@ -10,7 +10,7 @@ from os.path import dirname, basename, isfile, join
 import glob
 
 
-class Pegasus:
+class PegasusHandler:
 
     def __init__(self):
 
@@ -158,10 +158,3 @@ class Pegasus:
             modules[file] = module
 
         return modules
-
-
-if __name__ == "__main__":
-
-    while True:
-        text_input = input('\ncommand: ')
-        p = Pegasus().run_command(text_input)

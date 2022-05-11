@@ -1,5 +1,4 @@
 from platform import version
-from pegasus_client.pegasus_handler import Pegasus
 from pegasus_client.default_modules.update import module as update
 from pegasus_client.default_modules.format import module as format
 from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file
@@ -181,8 +180,7 @@ def updateconn():
         'type': request.form.get('type', 0),
         'server': request.form.get('server', 0),
         'database': request.form.get('database', 0),
-        'username': request.form.get('username', 0),
-        'password': request.form.get('password', 0)
+        'credential': request.form.get('credential', 0)
     }
 
     sql_config().update_conn(conn_name, conn_setup)
@@ -190,3 +188,27 @@ def updateconn():
     flash('Connection updated.')
 
     return redirect(url_for('sql_routes.sql_setup', setting_type='connections'))
+
+
+# CREDENTIAL
+@sql_routes.route('/sql-api/deletecred/<cred>', methods=['GET', 'POST'])
+def deletecred(cred):
+    try:
+        sql_config().delete_cred(cred)
+        flash(f'Connection ({cred}) deleted.')
+    except Exception as e:
+        flash(str(e))
+
+    return redirect(url_for('sql_routes.sql_setup', setting_type='credentials'))
+
+
+@sql_routes.route('/sql-api/updatecred', methods=['GET', 'POST'])
+def updatecred():
+    cred_name = str(request.form.get('credName', 0))
+
+    sql_config().update_cred(cred_name, request.form.get(
+        'username', 0), request.form.get('password', 0))
+
+    flash('Credential updated.')
+
+    return redirect(url_for('sql_routes.sql_setup', setting_type='credentials'))

@@ -1,10 +1,10 @@
 from platform import version
-from pegasus_client.pegasus_handler import Pegasus
+from pegasus_client.pegasus_handler import PegasusHandler
 from pegasus_client.default_modules.update import module as update
 from flask import Blueprint, render_template, request, redirect, url_for
 
 core_routes = Blueprint('core_routes', __name__)
-pegasus = Pegasus()
+pegasus = PegasusHandler()
 
 
 @core_routes.route('/')
