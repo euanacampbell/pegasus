@@ -149,7 +149,7 @@
 
       {% if setting_type=='credentials' %}
       <!-- CREDENTIALS -->
-      <p>Create the credentials that will link to the database</p>
+      <p>Manage your database credentials.</p>
       <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newCredModal">
         Add
       </button>
@@ -179,10 +179,13 @@
                   <td>{{cred}}</td>
                   <td><input name="username" value="{{ config['credentials'][cred]['username'] }}" type="text"
                       class="form-control mb-0" aria-describedby="basic-addon3" style="font-size: inherit;"></td>
-                  <td><input name="password"
+                  <!-- <td><input name="password"
                       value="{% if config['credentials'][cred]['password']|length>0 %}shh no peeking{% else %}{% endif %}"
                       type="password" class="form-control mb-0" aria-describedby="basic-addon3"
                       style="font-size: inherit;">
+                  </td> -->
+                  <td><input name="password" value="" type="password" placeholder="..." class="form-control mb-0"
+                      aria-describedby="basic-addon3" style="font-size: inherit;">
                   </td>
                   <td style="vertical-align: middle;"><button type="submit" class="btn btn-secondary"><i
                         class="fa fa-save"></i></button></td>

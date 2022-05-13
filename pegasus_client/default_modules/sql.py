@@ -100,8 +100,9 @@ class module:
                     credential = sql_config().load_config(
                     )['credentials'][connection_details['credential']]
                 except KeyError:
-                    raise Exception(
+                    all_results.append(
                         f"Credential {connection_details['credential']} is missing, please create a new one.")
+                    continue
             else:
                 credential = {
                     'username': 'windows',
