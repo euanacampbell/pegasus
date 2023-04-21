@@ -1,7 +1,7 @@
 pylint==2.6.2
 PyMySQL==1.0.2
 pyperclip==1.8.2
-sqlparse==0.4.2
+sqlparse==0.4.4
 rich==10.7.0
 requests==2.26.0
 psutil==5.8.0
